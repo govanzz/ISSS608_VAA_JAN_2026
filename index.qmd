@@ -1,0 +1,11 @@
+---
+title: "ISSS608 Visual Analytics"
+---
+
+This will be my Course website for ISSS608 Visual Analytics .
+
+To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+
+```{r}
+1 + 1
+```
