@@ -1,0 +1,17 @@
+{
+  "hash": "b6f7eac4f3ebcdf85c33a3f5254aba6d",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Hands on Exercise 1\"\nauthor: \"Gautamgovan\"\ndate: \"January 15, 2026\"\ndate-modified: \"last-modified\"\nformat: \n  html:\n    toc: true\n    toc-depth: 4\n    number-sections: true\nexecute: \n  eval: true\n  echo: true\n  warning: false\n  freeze: true\n---\n\n## Learning Outcome\n\nIn this chapter, we will learn the basic principles and essential components of ggplot2. At the same time, we will gain hands-on experience on using these components to plot statistical graphics based on the principle of Layered Grammar of Graphics. By then end of this chapter we will be able to apply the essential graphical elements provided by ggplot2 to create elegant and yet functional statistical graphics.\n\n## Getting started\n\n### Installing and loading the required libraries\n\nBefore we get started, it is important for us to ensure that the required R packages have been installed.\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(tidyverse)\n```\n:::\n\n\n### Importing data\n\n-   The code chunk below imports exam_data.csv into R environment by using read_csv() function of readr package.\n-   readr is one of the tidyverse package.\n\n\n::: {.cell}\n\n```{.r .cell-code}\nexam_data <- read_csv(\"data/Exam_data.csv\")\n```\n:::\n\n\n## Introducing ggplot\n\nggplot 2 is an R package for declaratively creating data-driven graphics based on The Grammar of Graphics It is also part of the tidyverse family specially designed for visual exploration and communication.\n\n### R Graphics VS ggplot\n\nFirst, let us compare how R Graphics, the core graphical functions of Base R and ggplot plot a simple histogram.\n\n::: panel-tabset\n### R Graphics\n\n\n::: {.cell}\n\n```{.r .cell-code}\nhist(exam_data$MATHS)\n```\n\n::: {.cell-output-display}\n![](Hands-on_Ex01_files/figure-html/unnamed-chunk-3-1.png){width=672}\n:::\n:::\n\n### ggplot2\n\n::: {.cell}\n\n```{.r .cell-code}\nggplot(data=exam_data, aes(x = MATHS)) +\n  geom_histogram(bins=10, \n                 boundary = 100,\n                 color=\"black\", \n                 fill=\"grey\") +\n  ggtitle(\"Distribution of Maths scores\")\n```\n\n::: {.cell-output-display}\n![](Hands-on_Ex01_files/figure-html/unnamed-chunk-4-1.png){width=672}\n:::\n:::\n\n:::\n",
+    "supporting": [
+      "Hands-on_Ex01_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
