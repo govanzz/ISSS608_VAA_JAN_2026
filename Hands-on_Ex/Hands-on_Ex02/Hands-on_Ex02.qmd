@@ -180,4 +180,57 @@ p3 <- ggplot(data=exam_data,
   ggtitle("English scores versus Maths scores for Primary 3")
 print(p3)
 ```
+### Creating Composite Graphics: pathwork methods
+
+There are several ggplot2 extension’s functions support the needs to prepare composite figure by combining several graphs such as grid.arrange() of gridExtra package and plot_grid() of cowplot package. In this section, I am going to shared with you an ggplot2 extension called patchwork which is specially designed for combining separate ggplot2 graphs into a single figure.
+
+Patchwork package has a very simple syntax where we can create layouts super easily. Here’s the general syntax that combines:
+
+- Two-Column Layout using the Plus Sign +.
+- Parenthesis () to create a subplot group.
+- Two-Row Layout using the Division Sign /
+
+### Combining two ggplot2 graphs
+
+Figure in the tabset below shows a composite of two histograms created using patchwork. Note how simple the syntax used to create the plot!
+
+```{r}
+p1+p2
+```
+### Combining three ggplot2 graphs
+We can plot more complex composite by using appropriate operators. For example, the composite figure below is plotted by using:
+
+- “/” operator to stack two ggplot2 graphs,
+- “|” operator to place the plots beside each other,
+- “()” operator the define the sequence of the plotting.
+
+```{r}
+(p1 / p2) | p3
+```
+### Creating a composite figure with tag
+
+
+In order to identify subplots in text, patchwork also provides auto-tagging capabilities as shown in the figure below.
+
+```{r}
+((p1 / p2) | p3) + 
+  plot_annotation(tag_levels = 'I')
+```
+### Creating figure with insert
+Beside providing functions to place plots next to each other based on the provided layout. With inset_element() of patchwork, we can place one or several plots or graphic elements freely on top or below another plot.
+
+```{r}
+p3 + inset_element(p2, 
+                   left = 0.02, 
+                   bottom = 0.7, 
+                   right = 0.5, 
+                   top = 1)
+```
+### Creating a composite figure by using patchwork and ggtheme
+Figure below is created by combining patchwork and theme_economist() of ggthemes package discussed earlier.
+
+```{r}
+patchwork <- (p1 / p2) | p3
+patchwork & theme_economist()
+```
 
