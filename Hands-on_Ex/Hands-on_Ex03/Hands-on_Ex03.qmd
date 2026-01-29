@@ -767,6 +767,8 @@ gg <- ggplot(globalPop,
 ggplotly(gg)
 ```
 The animated bubble plot above includes a play/pause button and a slider component for controlling the animation
+
+
 ### The code chunk
 ```{r}
 #| eval: false
@@ -786,6 +788,7 @@ gg <- ggplot(globalPop,
 
 ggplotly(gg)
 ```
+
 :::
 
 Notice that although show.legend = FALSE argument was used, the legend still appears on the plot. To overcome this problem, theme(legend.position='none') should be used as shown in the plot and code chunk below.
@@ -835,7 +838,8 @@ ggplotly(gg)
 
 
 ### Building an animated bubble plot: plot_ly() method
-In this sub-section, we will learn how to create an animated bubble plot by using plot_ly() method.
+In this sub-section, we will learn how to create an animated bubble plot by using plot_ly() method
+
 ::: panel-tabset
 
 ### The plot 
@@ -858,7 +862,6 @@ bp
 ```
 
 ### The code chunk
-
 ```{r}
 #| eval: false
 bp <- globalPop %>%
