@@ -3,6 +3,7 @@ project:
 
 website:
   title: "ISSS608 Visual Analytics"
+  google-analytics: "G-MQ4FWJ0Y7M"
   navbar:
     left:
       - text: "Hands-on Exercise"

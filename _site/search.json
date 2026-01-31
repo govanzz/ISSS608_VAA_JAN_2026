@@ -53,7 +53,42 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
+    "text": "The objectives of this website are to:\n\nDocument hands-on learning in visual analytics\n\nApply data visualization principles using real datasets\n\nDemonstrate the use of R and visualization libraries\n\nPresent analytical results in a clear and structured format\n\nServe as a reference for coursework and future learning"
+  },
+  {
+    "objectID": "about.html#purpose-of-this-website",
+    "href": "about.html#purpose-of-this-website",
+    "title": "About",
+    "section": "",
+    "text": "The objectives of this website are to:\n\nDocument hands-on learning in visual analytics\n\nApply data visualization principles using real datasets\n\nDemonstrate the use of R and visualization libraries\n\nPresent analytical results in a clear and structured format\n\nServe as a reference for coursework and future learning"
+  },
+  {
+    "objectID": "about.html#contents-of-the-website",
+    "href": "about.html#contents-of-the-website",
+    "title": "About",
+    "section": "Contents of the Website",
+    "text": "Contents of the Website\nThis website contains the following sections:\n\n📘 Hands-on Exercises\nPractical exercises focusing on: - Data exploration - Visual encoding techniques - Statistical graphics using ggplot2\n\n\n🧪 In-Class Exercises\nGuided exercises conducted during lessons to reinforce: - Visual perception principles\n- Effective chart design\n- Analytical storytelling\n\n\n🏠 Take-Home Exercises\nIndependent assignments that apply visual analytics concepts to: - Real-world datasets\n- Exploratory and explanatory analysis\n- Visual interpretation and reporting"
+  },
+  {
+    "objectID": "about.html#tools-technologies-used",
+    "href": "about.html#tools-technologies-used",
+    "title": "About",
+    "section": "Tools & Technologies Used",
+    "text": "Tools & Technologies Used\n\nR / RStudio\nQuarto\nggplot2\ntidyverse\nPlotly\nGitHub & Netlify (for version control and deployment)"
+  },
+  {
+    "objectID": "about.html#about-the-author",
+    "href": "about.html#about-the-author",
+    "title": "About",
+    "section": "About the Author",
+    "text": "About the Author\nName: Gautamgovan\nProgramme: Master of IT in Business (MITB)\nCourse: ISSS608 – Visual Analytics\nInstitution: Singapore Management University\nThis website is part of my academic coursework and is intended for educational purposes."
+  },
+  {
+    "objectID": "about.html#disclaimer",
+    "href": "about.html#disclaimer",
+    "title": "About",
+    "section": "Disclaimer",
+    "text": "Disclaimer\nAll content in this website is created for learning and academic use only.\nDatasets and visualisations are used strictly for educational purposes."
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html",

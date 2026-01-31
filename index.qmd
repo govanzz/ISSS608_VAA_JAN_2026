@@ -1,7 +1,5 @@
 ---
-website:
   title: "ISSS608 Visual Analytics"
-  google-analytics: "G-MQ4FJW9Y7M"
 
 ---
 
