@@ -1,5 +1,8 @@
 ---
-title: "ISSS608 Visual Analytics"
+website:
+  title: "ISSS608 Visual Analytics"
+  google-analytics: "G-MQ4FJW9Y7M"
+
 ---
 
 This will be my Course website for ISSS608 Visual Analytics .
