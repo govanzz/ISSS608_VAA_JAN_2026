@@ -14,3 +14,61 @@ execute:
   warning: false
   freeze: true
 ---
+
+# Creating Data Visualisation Beyond Default: Exploring Factors Affecting Students’ Learning Outcomes {.unnumbered}
+
+# Introduction
+
+Education plays a critical role in shaping human capital and long-term socio-economic development. Understanding the factors that influence students’ learning outcomes is therefore essential for educators and institutions seeking to improve academic performance and learning experiences. Survey data provides an opportunity to examine how demographic characteristics, study behaviours, and learning environments relate to students’ academic outcomes.
+
+This take-home exercise applies visually driven exploratory data analysis techniques to examine students’ learning outcomes and their relationships with selected individual, behavioural, and institutional factors. Using carefully designed data visualisations, the analysis aims to reveal meaningful patterns while ensuring that insights are presented in a clear, truthful, and reproducible manner.
+
+## Background
+
+Despite increasing access to education, students’ academic performance continues to vary due to differences in personal background, study habits, and the level of support provided by educational institutions. Factors such as gender, family background, time spent on self-study, internet usage, and perceived institutional support may influence learning outcomes in complex ways.
+
+Rather than relying solely on numerical summaries, data visualisation enables these relationships to be explored more intuitively by revealing distributions, contrasts, and trends within the data. Well-designed visualisations can help identify patterns that may otherwise remain hidden, providing a foundation for deeper investigation into the drivers of academic performance.
+
+## Objective and Analytical Questions
+
+The objective of this take-home exercise is to apply appropriate exploratory data analysis techniques and visually driven methods to examine students’ learning outcomes using survey data. Through the use of carefully designed data visualisations, this exercise aims to uncover general patterns, distributions, and potential relationships within the data.
+
+In particular, the analysis focuses on exploring the distribution of students’ learning outcomes and examining how these outcomes vary across selected student characteristics and contextual factors. The visualisations are used to provide an initial understanding of how learning outcomes may differ across groups and conditions, without making causal claims.
+
+The insights derived from this exploratory analysis serve as a starting point for identifying areas that may warrant deeper investigation in future studies related to student academic performance.
+
+
+# Getting Started 
+## Setting the Analytical Tools
+
+The data preparation, analysis, and visualisation tasks in this take-home exercise are performed using R and a set of packages from the tidyverse ecosystem. These packages support reproducible data wrangling workflows and the creation of expressive statistical graphics based on the Grammar of Graphics.
+
+In addition to `ggplot2`, several ggplot2 extension packages are used to enhance the clarity and expressiveness of the visualisations beyond default settings.
+
+The R packages used in this take-home exercise are:
+
+- `tidyverse` for data import, tidying, wrangling, and visualisation
+- `ggthemes` for applying consistent and visually appealing plot themes
+- `scales` for formatting axes and labels
+- `patchwork` for arranging multiple plots where necessary
+
+The code chunk below uses the `p_load()` function from the `pacman` package to check whether the required packages are installed. If the packages are not available, they are installed before being loaded into the R environment.
+
+```{r}
+pacman::p_load(
+  tidyverse,
+  ggthemes,
+  scales,
+  patchwork
+)
+```
+
+## Data Source 
+
+The dataset used in this take-home exercise is a student survey dataset that captures information related to students’ academic performance, personal background, study behaviours, and perceptions of the learning environment.
+
+The dataset consists of 2,170 observations and 22 variables, with each observation representing an individual student’s survey response. The variables include a mix of demographic attributes, indicators of family background, study-related behaviours, and self-reported perceptions of institutional and learning support.
+
+For the purposes of this exploratory analysis, the dataset is used to examine general patterns and relationships between students’ learning outcomes and selected contextual factors. No attempt is made to draw causal conclusions from the data.
+
+

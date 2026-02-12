@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -133,6 +168,10 @@ gtag('config', 'G-MQ4FWJ0Y7M', { 'anonymize_ip': true});
     <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex04D/Hands-on_Ex04D.html">
  <span class="dropdown-text">Hands-on Exercise 4D</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex05A/Hands-on_Ex05A.html">
+ <span class="dropdown-text">Hands-on Exercise 5A</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item">
@@ -172,8 +211,24 @@ gtag('config', 'G-MQ4FWJ0Y7M', { 'anonymize_ip': true});
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#creating-data-visualisation-beyond-default-exploring-factors-affecting-students-learning-outcomes" id="toc-creating-data-visualisation-beyond-default-exploring-factors-affecting-students-learning-outcomes" class="nav-link active" data-scroll-target="#creating-data-visualisation-beyond-default-exploring-factors-affecting-students-learning-outcomes">Creating Data Visualisation Beyond Default: Exploring Factors Affecting Students’ Learning Outcomes</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a>
+  <ul>
+  <li><a href="#background" id="toc-background" class="nav-link" data-scroll-target="#background"><span class="header-section-number">1.1</span> Background</a></li>
+  <li><a href="#objective-and-analytical-questions" id="toc-objective-and-analytical-questions" class="nav-link" data-scroll-target="#objective-and-analytical-questions"><span class="header-section-number">1.2</span> Objective and Analytical Questions</a></li>
+  </ul></li>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started"><span class="header-section-number">2</span> Getting Started</a>
+  <ul>
+  <li><a href="#setting-the-analytical-tools" id="toc-setting-the-analytical-tools" class="nav-link" data-scroll-target="#setting-the-analytical-tools"><span class="header-section-number">2.1</span> Setting the Analytical Tools</a></li>
+  <li><a href="#data-source" id="toc-data-source" class="nav-link" data-scroll-target="#data-source"><span class="header-section-number">2.2</span> Data Source</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -201,6 +256,12 @@ gtag('config', 'G-MQ4FWJ0Y7M', { 'anonymize_ip': true});
     </div>
   </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">February 11, 2026</p>
+    </div>
+  </div>
     
   </div>
   
@@ -209,8 +270,57 @@ gtag('config', 'G-MQ4FWJ0Y7M', { 'anonymize_ip': true});
 </header>
 
 
+<section id="creating-data-visualisation-beyond-default-exploring-factors-affecting-students-learning-outcomes" class="level1 unnumbered">
+<h1 class="unnumbered">Creating Data Visualisation Beyond Default: Exploring Factors Affecting Students’ Learning Outcomes</h1>
+</section>
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
+<p>Education plays a critical role in shaping human capital and long-term socio-economic development. Understanding the factors that influence students’ learning outcomes is therefore essential for educators and institutions seeking to improve academic performance and learning experiences. Survey data provides an opportunity to examine how demographic characteristics, study behaviours, and learning environments relate to students’ academic outcomes.</p>
+<p>This take-home exercise applies visually driven exploratory data analysis techniques to examine students’ learning outcomes and their relationships with selected individual, behavioural, and institutional factors. Using carefully designed data visualisations, the analysis aims to reveal meaningful patterns while ensuring that insights are presented in a clear, truthful, and reproducible manner.</p>
+<section id="background" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="background"><span class="header-section-number">1.1</span> Background</h2>
+<p>Despite increasing access to education, students’ academic performance continues to vary due to differences in personal background, study habits, and the level of support provided by educational institutions. Factors such as gender, family background, time spent on self-study, internet usage, and perceived institutional support may influence learning outcomes in complex ways.</p>
+<p>Rather than relying solely on numerical summaries, data visualisation enables these relationships to be explored more intuitively by revealing distributions, contrasts, and trends within the data. Well-designed visualisations can help identify patterns that may otherwise remain hidden, providing a foundation for deeper investigation into the drivers of academic performance.</p>
+</section>
+<section id="objective-and-analytical-questions" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="objective-and-analytical-questions"><span class="header-section-number">1.2</span> Objective and Analytical Questions</h2>
+<p>The objective of this take-home exercise is to apply appropriate exploratory data analysis techniques and visually driven methods to examine students’ learning outcomes using survey data. Through the use of carefully designed data visualisations, this exercise aims to uncover general patterns, distributions, and potential relationships within the data.</p>
+<p>In particular, the analysis focuses on exploring the distribution of students’ learning outcomes and examining how these outcomes vary across selected student characteristics and contextual factors. The visualisations are used to provide an initial understanding of how learning outcomes may differ across groups and conditions, without making causal claims.</p>
+<p>The insights derived from this exploratory analysis serve as a starting point for identifying areas that may warrant deeper investigation in future studies related to student academic performance.</p>
+</section>
+</section>
+<section id="getting-started" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Getting Started</h1>
+<section id="setting-the-analytical-tools" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="setting-the-analytical-tools"><span class="header-section-number">2.1</span> Setting the Analytical Tools</h2>
+<p>The data preparation, analysis, and visualisation tasks in this take-home exercise are performed using R and a set of packages from the tidyverse ecosystem. These packages support reproducible data wrangling workflows and the creation of expressive statistical graphics based on the Grammar of Graphics.</p>
+<p>In addition to <code>ggplot2</code>, several ggplot2 extension packages are used to enhance the clarity and expressiveness of the visualisations beyond default settings.</p>
+<p>The R packages used in this take-home exercise are:</p>
+<ul>
+<li><code>tidyverse</code> for data import, tidying, wrangling, and visualisation</li>
+<li><code>ggthemes</code> for applying consistent and visually appealing plot themes</li>
+<li><code>scales</code> for formatting axes and labels</li>
+<li><code>patchwork</code> for arranging multiple plots where necessary</li>
+</ul>
+<p>The code chunk below uses the <code>p_load()</code> function from the <code>pacman</code> package to check whether the required packages are installed. If the packages are not available, they are installed before being loaded into the R environment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  tidyverse,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  ggthemes,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  scales,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  patchwork</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data-source" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="data-source"><span class="header-section-number">2.2</span> Data Source</h2>
+<p>The dataset used in this take-home exercise is a student survey dataset that captures information related to students’ academic performance, personal background, study behaviours, and perceptions of the learning environment.</p>
+<p>The dataset consists of 2,170 observations and 22 variables, with each observation representing an individual student’s survey response. The variables include a mix of demographic attributes, indicators of family background, study-related behaviours, and self-reported perceptions of institutional and learning support.</p>
+<p>For the purposes of this exploratory analysis, the dataset is used to examine general patterns and relationships between students’ learning outcomes and selected contextual factors. No attempt is made to draw causal conclusions from the data.</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
