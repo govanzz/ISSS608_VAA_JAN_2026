@@ -1632,7 +1632,7 @@ In comparison, socioeconomic-policy status shows smaller variations in mean GPA,
 Although the analysis remains descriptive and does not imply causality, the findings highlight that while family background is largely non-modifiable, institutional support represents a practical and potentially impactful area for intervention. Strengthening academic support structures may therefore offer a realistic pathway for improving student performance.
 
 
-# Refereces
+# References
 
 Credé, M., & Kuncel, N. R. (2008). *Study habits, skills, and attitudes: The third pillar supporting collegiate academic performance.* Perspectives on Psychological Science, 3(6), 425–453.  
 [https://doi.org/10.1111/j.1745-6924.2008.00089.x](https://doi.org/10.1111/j.1745-6924.2008.00089.x)
