@@ -421,7 +421,7 @@ ggplot(gpa_dist, aes(x = GPA, y = prop, fill = GPA)) +
 
 :::
 
-Observation:
+**Observation**:
 
 The proportional bar chart shows that the majority of students fall within the “Fair” GPA category, accounting for 54.8% of the sample. This is followed by 31.9% of students in the “Good” category. In contrast, relatively small proportions of students are observed at the extreme ends of the performance spectrum, with 3.4% classified as “Poor” and 4.9% as “Excellent.”
 
@@ -523,7 +523,7 @@ ggplot(gpa_study, aes(x = Time_Studying, y = prop, fill = GPA)) +
 
 
 
-Observation:
+**Observation**:
 
 The proportional stacked bar chart suggests a relationship between daily study duration and GPA distribution. Students who study for shorter durations (less than 2 hours or 2–4 hours) exhibit a higher proportion of “Average” and lower “Good” or “Excellent” outcomes.
 
@@ -832,7 +832,7 @@ plot2 <- ggplot(plot2_data,
 
 :::
 
-Observation:
+**Observation**:
 
 The visualisations suggest a clear gradient in academic performance across parental education levels. As the highest parental education increases from primary school to university/graduate level, the proportion of students achieving “Good” and “Excellent” GPA categories rises steadily, while the proportion in the “Fair” category declines. For example, students with university/graduate-educated parents show a noticeably higher share of “Good” performance compared to those whose highest parental education is primary or secondary school.
 
@@ -957,7 +957,7 @@ ggplot(gpa_equity,
 
 :::
 
-Observation:
+**Observation**:
 
 The proportional distribution reveals noticeable differences in GPA composition across demographic-policy groups. Non-minority students without policy status exhibit a relatively stronger performance profile, with 35.2% in the “Good” category and 5.4% achieving “Excellent.” In contrast, minority students with policy status show a markedly higher concentration in the “Fair” category (76.0%) and a lower proportion of students in the “Good” category (20.9%), indicating comparatively weaker upper-tier representation.
 
@@ -968,6 +968,7 @@ Non-minority policy students occupy an intermediate position, with 58.7% classif
 To examine the role of the learning environment in shaping academic outcomes, a composite measure of institutional support is constructed by combining students’ perceptions of lecturer support and university support. Rather than analysing these two related variables separately, they are aggregated into a single index to represent overall institutional support. This approach reduces redundancy while providing a clearer and more integrated perspective on how perceived support structures relate to GPA distribution.
 
 Data Preparation:
+
 The two Likert-scale variables — `SupportOf_Lec` and `SupportOf_Uni` — are first converted from ordered factors to numeric scores (1 to 5). Their average is then computed to create a composite institutional support score for each student. Finally, this average score is converted back into an ordered categorical variable to preserve interpretability while maintaining the ordinal structure of the scale.
 
 ```{r}
@@ -1019,7 +1020,7 @@ gpa_support <- stu_data_support %>%
 
 ::: panel-tabset
 
-#The Plot 
+###The Plot 
 
 ```{r}
 #| echo: false
@@ -1089,7 +1090,7 @@ ggplot(gpa_support,
 
 :::
 
-Observation:
+**Observation**:
 
 The proportional distribution suggests a positive association between perceived institutional support and academic performance. Students reporting low levels of support (“Not at all” or “Little”) exhibit relatively higher proportions of “Poor” outcomes (8.3% and 16.7%, respectively) and lower shares of “Good” performance (25.0% and 20.8%). As institutional support increases to “Quite” and “Very,” the proportion of students in the “Good” category rises noticeably (34.0% and 33.1%), while the share of “Poor” outcomes declines substantially.
 
@@ -1218,7 +1219,7 @@ ggplot(heatmap_data,
 
 :::
 
-Observation:
+**Observation**:
 
 The heatmap reveals moderate but discernible variation in average GPA category scores across perception variables and response levels. Overall, mean GPA scores cluster within a relatively narrow range (approximately 3.1 to 3.4), indicating limited dispersion in academic performance across perception categories.
 
@@ -1399,7 +1400,7 @@ ggplot(likert_data,
 :::
 
 
-Observation:
+**Observation**:
 
 The diverging Likert distributions suggest generally positive perceptions of both adaptation to the university learning environment and the impact of classroom competitiveness across all student groups. Agreement responses (“Quite” and “Very”) dominate in most panels, while disagreement remains minimal.
 
@@ -1611,7 +1612,7 @@ ggplot(final_summary,
 
 :::
 
-Observation:
+**Observation**:
 
 The comparative dot plot synthesises earlier findings by examining mean GPA category scores across key structural and institutional factors. A clear upward gradient is observed across parental education levels, with students whose parents attained university or graduate education exhibiting higher mean GPA scores compared to those from primary or secondary school backgrounds. This pattern suggests that family educational capital remains a consistent structural correlate of academic positioning.
 

@@ -743,7 +743,7 @@ $ InfuenceF_Friends  &lt;dbl&gt; 3, 4, 4, 4, 5, 3, 5, 4, 4, 4, 4, 4, 4, 5, 4, 5,
 </div>
 </div>
 </div>
-<p>Observation:</p>
+<p><strong>Observation</strong>:</p>
 <p>The proportional bar chart shows that the majority of students fall within the “Fair” GPA category, accounting for 54.8% of the sample. This is followed by 31.9% of students in the “Good” category. In contrast, relatively small proportions of students are observed at the extreme ends of the performance spectrum, with 3.4% classified as “Poor” and 4.9% as “Excellent.”</p>
 <p>This distribution suggests that academic performance among the surveyed students is concentrated around mid-level achievement rather than being widely dispersed. While a substantial proportion of students perform at a relatively strong level (“Good”), very high academic achievement appears limited to a smaller segment of the population. Overall, the pattern reflects a moderately centralised academic performance profile within the sample.</p>
 </section>
@@ -806,7 +806,7 @@ $ InfuenceF_Friends  &lt;dbl&gt; 3, 4, 4, 4, 5, 3, 5, 4, 4, 4, 4, 4, 4, 5, 4, 5,
 </div>
 </div>
 </div>
-<p>Observation:</p>
+<p><strong>Observation</strong>:</p>
 <p>The proportional stacked bar chart suggests a relationship between daily study duration and GPA distribution. Students who study for shorter durations (less than 2 hours or 2–4 hours) exhibit a higher proportion of “Average” and lower “Good” or “Excellent” outcomes.</p>
 <p>As study time increases, the proportion of students in the “Good” category rises noticeably, particularly in the 6–8 hour group (34.3%) and remains high in the above 8-hour group (32.2%). Additionally, the share of “Excellent” outcomes appears more visible among students studying 4–6 hours and above 8 hours compared to lower study durations.</p>
 <p>While “Fair” remains the dominant category across all groups, the gradual shift toward stronger performance categories with increased study time suggests a positive association between study duration and academic outcomes, though no causal inference is implied.</p>
@@ -971,7 +971,7 @@ $ InfuenceF_Friends  &lt;dbl&gt; 3, 4, 4, 4, 5, 3, 5, 4, 4, 4, 4, 4, 4, 5, 4, 5,
 </div>
 </div>
 </div>
-<p>Observation:</p>
+<p><strong>Observation</strong>:</p>
 <p>The visualisations suggest a clear gradient in academic performance across parental education levels. As the highest parental education increases from primary school to university/graduate level, the proportion of students achieving “Good” and “Excellent” GPA categories rises steadily, while the proportion in the “Fair” category declines. For example, students with university/graduate-educated parents show a noticeably higher share of “Good” performance compared to those whose highest parental education is primary or secondary school.</p>
 <p>The second subplot reinforces this pattern. Students with both parents holding university/graduate qualifications exhibit a higher proportion of “Good” and “Excellent” outcomes compared to those without dual university-educated parents. Conversely, the share of students in the “Fair” category is lower in this group.</p>
 <p>Overall, the results indicate a positive association between higher parental educational attainment and stronger academic performance among students, although causal interpretations cannot be made from this descriptive analysis.</p>
@@ -1063,14 +1063,15 @@ $ InfuenceF_Friends  &lt;dbl&gt; 3, 4, 4, 4, 5, 3, 5, 4, 4, 4, 4, 4, 4, 5, 4, 5,
 </div>
 </div>
 </div>
-<p>Observation:</p>
+<p><strong>Observation</strong>:</p>
 <p>The proportional distribution reveals noticeable differences in GPA composition across demographic-policy groups. Non-minority students without policy status exhibit a relatively stronger performance profile, with 35.2% in the “Good” category and 5.4% achieving “Excellent.” In contrast, minority students with policy status show a markedly higher concentration in the “Fair” category (76.0%) and a lower proportion of students in the “Good” category (20.9%), indicating comparatively weaker upper-tier representation.</p>
 <p>Non-minority policy students occupy an intermediate position, with 58.7% classified as “Fair” and 26.8% as “Good.” While policy status appears to slightly shift distribution patterns, it does not fully eliminate performance differences across demographic groups. Overall, the visual suggests moderate variation in academic outcomes associated with minority and policy status, though the analysis remains descriptive and does not establish causal relationships.</p>
 </section>
 <section id="institutional-support-and-academic-performance" class="level2" data-number="4.5">
 <h2 data-number="4.5" class="anchored" data-anchor-id="institutional-support-and-academic-performance"><span class="header-section-number">4.5</span> Institutional Support and Academic Performance</h2>
 <p>To examine the role of the learning environment in shaping academic outcomes, a composite measure of institutional support is constructed by combining students’ perceptions of lecturer support and university support. Rather than analysing these two related variables separately, they are aggregated into a single index to represent overall institutional support. This approach reduces redundancy while providing a clearer and more integrated perspective on how perceived support structures relate to GPA distribution.</p>
-<p>Data Preparation: The two Likert-scale variables — <code>SupportOf_Lec</code> and <code>SupportOf_Uni</code> — are first converted from ordered factors to numeric scores (1 to 5). Their average is then computed to create a composite institutional support score for each student. Finally, this average score is converted back into an ordered categorical variable to preserve interpretability while maintaining the ordinal structure of the scale.</p>
+<p>Data Preparation:</p>
+<p>The two Likert-scale variables — <code>SupportOf_Lec</code> and <code>SupportOf_Uni</code> — are first converted from ordered factors to numeric scores (1 to 5). Their average is then computed to create a composite institutional support score for each student. Finally, this average score is converted back into an ordered categorical variable to preserve interpretability while maintaining the ordinal structure of the scale.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create Composite Institutional Support Variable</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1153,7 +1154,7 @@ $ InfuenceF_Friends  &lt;dbl&gt; 3, 4, 4, 4, 5, 3, 5, 4, 4, 4, 4, 4, 4, 5, 4, 5,
 </div>
 </div>
 </div>
-<p>Observation:</p>
+<p><strong>Observation</strong>:</p>
 <p>The proportional distribution suggests a positive association between perceived institutional support and academic performance. Students reporting low levels of support (“Not at all” or “Little”) exhibit relatively higher proportions of “Poor” outcomes (8.3% and 16.7%, respectively) and lower shares of “Good” performance (25.0% and 20.8%). As institutional support increases to “Quite” and “Very,” the proportion of students in the “Good” category rises noticeably (34.0% and 33.1%), while the share of “Poor” outcomes declines substantially.</p>
 <p>Although the “Fair” category remains dominant across all support levels, the upward shift in higher GPA categories at stronger support levels indicates a consistent gradient pattern. The proportion of “Excellent” outcomes also appears modestly higher among students perceiving stronger support. Overall, the visual suggests that higher perceived institutional support is associated with more favourable academic performance profiles, though the analysis remains descriptive and does not imply causality.</p>
 </section>
@@ -1249,7 +1250,7 @@ $ InfuenceF_Friends  &lt;dbl&gt; 3, 4, 4, 4, 5, 3, 5, 4, 4, 4, 4, 4, 4, 5, 4, 5,
 </div>
 </div>
 </div>
-<p>Observation:</p>
+<p><strong>Observation</strong>:</p>
 <p>The heatmap reveals moderate but discernible variation in average GPA category scores across perception variables and response levels. Overall, mean GPA scores cluster within a relatively narrow range (approximately 3.1 to 3.4), indicating limited dispersion in academic performance across perception categories.</p>
 <p>For most variables, higher perception levels (“Quite” and “Very”) tend to correspond with slightly higher mean GPA scores, particularly for Study_Methods, where the mean increases from 3.06 (“Little”) to 3.43 (“Quite”). A similar upward tendency is observed for Quality_Lecturer and TrainingCurriculum, though the gradient appears modest.</p>
 <p>An exception is seen in SupportOf_Lec at the “Little” level (2.86), which represents the lowest mean GPA score across the matrix, suggesting comparatively weaker academic positioning among students perceiving minimal lecturer support.</p>
@@ -1377,7 +1378,7 @@ $ InfuenceF_Friends  &lt;dbl&gt; 3, 4, 4, 4, 5, 3, 5, 4, 4, 4, 4, 4, 4, 5, 4, 5,
 </div>
 </div>
 </div>
-<p>Observation:</p>
+<p><strong>Observation</strong>:</p>
 <p>The diverging Likert distributions suggest generally positive perceptions of both adaptation to the university learning environment and the impact of classroom competitiveness across all student groups. Agreement responses (“Quite” and “Very”) dominate in most panels, while disagreement remains minimal.</p>
 <p>Regarding adaptation to the university learning environment, moderate and positive responses are prevalent across groups. Students receiving policy support—particularly those from economically disadvantaged backgrounds—show relatively higher proportions selecting stronger agreement levels, indicating a generally confident adjustment to university learning.</p>
 <p>For perceptions of classroom competitiveness, agreement levels are again substantial across all groups. Notably, economically disadvantaged students with policy support report the highest share of stronger agreement responses, suggesting that this group perceives the classroom environment as comparatively more competitive.</p>
@@ -1541,7 +1542,7 @@ $ InfuenceF_Friends  &lt;dbl&gt; 3, 4, 4, 4, 5, 3, 5, 4, 4, 4, 4, 4, 4, 5, 4, 5,
 </div>
 </div>
 </div>
-<p>Observation:</p>
+<p><strong>Observation</strong>:</p>
 <p>The comparative dot plot synthesises earlier findings by examining mean GPA category scores across key structural and institutional factors. A clear upward gradient is observed across parental education levels, with students whose parents attained university or graduate education exhibiting higher mean GPA scores compared to those from primary or secondary school backgrounds. This pattern suggests that family educational capital remains a consistent structural correlate of academic positioning.</p>
 <p>Institutional support also shows a positive association with academic performance. Students reporting higher levels of support (“Quite” and “Very”) tend to demonstrate slightly higher mean GPA scores compared to those perceiving little or no support, although differences are more moderate than those observed for parental education.</p>
 <p>Across socioeconomic-policy groups, mean GPA scores appear relatively similar, with only small variations between non-poor and policy-supported students. Overall, parental education and institutional support emerge as more pronounced differentiators of academic outcomes than socioeconomic-policy status alone, suggesting that strengthening institutional support mechanisms may offer a practical avenue for intervention.</p>
