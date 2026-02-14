@@ -1020,7 +1020,7 @@ gpa_support <- stu_data_support %>%
 
 ::: panel-tabset
 
-###The Plot 
+### The Plot 
 
 ```{r}
 #| echo: false
@@ -1152,6 +1152,7 @@ heatmap_data <- stu_data_heatmap %>%
 
 ```{r}
 #| echo: false
+
 ggplot(heatmap_data,
        aes(x = Perception_Level,
            y = Perception_Variable,
