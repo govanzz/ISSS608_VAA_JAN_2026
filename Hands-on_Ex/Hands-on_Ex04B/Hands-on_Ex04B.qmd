@@ -155,7 +155,7 @@ Effect Sizes and Confidence Intervals
 The following effect sizes (and confidence intervals, CI) are available for each type of test.
 
 | Type | No. of groups | Effect size | CI? |
-|--------------|-------------------------|-------------------|--------------|
+|----------------|-----------------------|-----------------|----------------|
 | Parametric | \> 2 | (\eta\_p\^2), (\eta\^2), (\omega\_p\^2), (\omega\^2) | Yes |
 | Non-parametric | \> 2 | (\eta\_H\^2) (H-statistic–based eta-squared) | Yes |
 | Robust | \> 2 | (\xi) (explanatory measure of effect size) | Yes |
@@ -182,6 +182,7 @@ The following multiple pairwise comparison tests are supported.
 ### Significant Test of Correlation: ggscatterstats()
 
 In the code chunk below, ggscatterstats() is used to build a visual for Significant Test of Correlation between Maths scores and English scores.
+
 ```{r}
 
 ggscatterstats(
