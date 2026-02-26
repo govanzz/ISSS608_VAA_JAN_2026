@@ -1,0 +1,12 @@
+name: ShinyPrototype1
+title: ShinyPrototype1
+username: govanzz
+account: govanzz
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 16729693
+bundleId: 11610428
+url: https://govanzz.shinyapps.io/ShinyPrototype1/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

@@ -32,6 +32,8 @@ website:
             href: "Hands-on_Ex/Hands-on_Ex05D/Hands-on_Ex05D.html"
           - text: "Hands-on Exercise 5E"
             href: "Hands-on_Ex/Hands-on_Ex05E/Hands-on_Ex05E.html"
+          - text: "Hands-on Exercise 7"
+            href: "Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html"
           
             # Add more as needed
 
