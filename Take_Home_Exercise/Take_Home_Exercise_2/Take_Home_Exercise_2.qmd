@@ -1,0 +1,60 @@
+---
+title: "Take Home Exercsise 2"
+author: "Gautamgovan"
+date: "March 4, 2026"
+date-modified: "last-modified"
+format: 
+  html:
+    toc: true
+    toc-depth: 4
+    number-sections: true
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+## Objective:
+The objective of this project is to understand the behaviors behind customer transactions and how socio-demographic factors—such as age, income, and occupation—affect customer transactions. By applying statistical correlation techniques, we aim to identify which personal attributes are the true drivers of financial activity within the Colombian fintech ecosystem.
+
+Building upon this exploratory analysis, this individual component extends the investigation through predictive modelling. Specifically, the study develops models to estimate customer satisfaction levels using demographic, behavioral, and digital engagement variables from the COFINFAD dataset. Linear Regression, Decision Tree, and Random Forest models are applied to analyze how different factors influence customer satisfaction, while visual analytics techniques are used to interpret model performance and identify the most important drivers of customer experience within the fintech platform.
+
+
+
+## Load Packages 
+
+Several R packages are used in this analysis to support data manipulation, visualization, and predictive modelling. The tidyverse package is used for data cleaning and transformation, while lubridate assists with handling date and time variables in the transaction dataset. The tidymodels framework provides a unified environment for building and evaluating predictive models. Visualization packages such as corrplot, vip, and rpart.plot are used to produce visual analytics outputs, including correlation matrices, feature importance plots, and decision tree diagrams. These packages collectively support the implementation of the modelling workflow and the generation of interpretable visual insights.
+
+```{r}
+pacman::p_load(
+  tidyverse,
+  lubridate,
+  tidymodels,
+  rpart.plot,
+  vip,
+  corrplot,
+  patchwork
+)
+
+set.seed(123)
+tidymodels_prefer()
+```
+## Loading Dataset
+
+The **COFINFAD (Colombian Fintech Financial Analytics Dataset)** consists of two relational datasets provided in CSV format.
+
+The first dataset, `customer_data.csv`, contains customer-level information for **48,723 individuals**, including demographic attributes, product usage indicators, satisfaction metrics, and aggregated behavioral variables.
+
+The second dataset, `transactions_data.csv`, contains **3,159,157 transaction records** collected over a **12-month period in 2023**, capturing individual transaction events such as **transaction amount, transaction date, and transaction type**.
+
+Both datasets are linked through a common identifier, `customer_id`, which serves as the **primary key** in the customer dataset and as a **foreign key** in the transaction dataset.
+
+In this analysis, the datasets are loaded into the **R environment** using the `readr` package, after which transaction-level data can be **aggregated and merged with the customer-level dataset** for further modelling and analysis.
+
+```{r}
+customer_data <- read_csv("data/customer_data.csv")
+
+transactions_data <- read_csv("data/transactions_data.csv")
+```
+
