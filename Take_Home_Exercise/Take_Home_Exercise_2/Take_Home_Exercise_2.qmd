@@ -29,32 +29,584 @@ Several R packages are used in this analysis to support data manipulation, visua
 ```{r}
 pacman::p_load(
   tidyverse,
-  lubridate,
   tidymodels,
-  rpart.plot,
+  lubridate,
   vip,
+  rpart.plot,
   corrplot,
-  patchwork
+  patchwork,
+  scales,
+  caret
 )
 
-set.seed(123)
 tidymodels_prefer()
+theme_set(theme_minimal())
+set.seed(1234)
+
 ```
 ## Loading Dataset
 
 The **COFINFAD (Colombian Fintech Financial Analytics Dataset)** consists of two relational datasets provided in CSV format.
 
-The first dataset, `customer_data.csv`, contains customer-level information for **48,723 individuals**, including demographic attributes, product usage indicators, satisfaction metrics, and aggregated behavioral variables.
+The first dataset, `customer_data.csv`, contains customer-level information for 48,723 individuals, including demographic attributes, product usage indicators, satisfaction metrics, and aggregated behavioral variables.
 
-The second dataset, `transactions_data.csv`, contains **3,159,157 transaction records** collected over a **12-month period in 2023**, capturing individual transaction events such as **transaction amount, transaction date, and transaction type**.
+The second dataset, `transactions_data.csv`, contains 3,159,157 transaction records collected over a 12-month period in 2023, capturing individual transaction events such as transaction amount, transaction date, and transaction type.
 
-Both datasets are linked through a common identifier, `customer_id`, which serves as the **primary key** in the customer dataset and as a **foreign key** in the transaction dataset.
+Both datasets are linked through a common identifier, `customer_id`, which serves as the primary key in the customer dataset and as a foreign key in the transaction dataset.
 
-In this analysis, the datasets are loaded into the **R environment** using the `readr` package, after which transaction-level data can be **aggregated and merged with the customer-level dataset** for further modelling and analysis.
+In this analysis, the datasets are loaded into the  environment using the `readr` package, after which transaction-level data can be aggregated and merged with the customer-level dataset for further modelling and analysis.
 
 ```{r}
 customer_data <- read_csv("data/customer_data.csv")
 
 transactions_data <- read_csv("data/transactions_data.csv")
+```
+## Data Preparation
+The first step is to remove observations with missing target values and ensure the transaction date field is in a proper date format.
+
+```{r}
+customer_data_clean <- customer_data %>%
+  filter(!is.na(satisfaction_score))
+
+transactions_data_clean <- transactions_data %>%
+  mutate(date = ymd(date))
+```
+
+```{r}
+customer_data_clean %>%
+  summarise(
+    n_customers = n(),
+    missing_target = sum(is.na(satisfaction_score))
+  )
+```
+
+### Transaction Feature Engineering 
+The transaction-level dataset is aggregated into customer-level behavioural indicators. These engineered variables capture transaction intensity, magnitude, variability, and recency.
+
+```{r}
+reference_date <- max(transactions_data_clean$date, na.rm = TRUE)
+
+transaction_features <- transactions_data_clean %>%
+  group_by(customer_id) %>%
+  summarise(
+    trans_count_eng = n(),
+    avg_amount_eng = mean(amount, na.rm = TRUE),
+    sd_amount_eng = sd(amount, na.rm = TRUE),
+    total_amount_eng = sum(amount, na.rm = TRUE),
+    max_amount_eng = max(amount, na.rm = TRUE),
+    min_amount_eng = min(amount, na.rm = TRUE),
+    recency_days_eng = as.numeric(reference_date - max(date, na.rm = TRUE)),
+    active_months_eng = n_distinct(floor_date(date, unit = "month")),
+    unique_tx_types_eng = n_distinct(type),
+    weekend_ratio_eng = mean(wday(date) %in% c(1, 7), na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+
+They are joined to customer data based on customer id 
+
+```{r}
+customer_model_data <- customer_data_clean %>%
+  left_join(transaction_features, by = "customer_id")
+```
+
+```{r}
+glimpse(customer_model_data)
+```
+These engineered variables complement the summary variables already present in the customer table and strengthen the behavioural representation of each customer.
+
+
+### Feature Selection 
+
+To build a robust predictive model, irrelevant and leakage-prone variables should be removed.
+
+In particular, the following types of variables are excluded:
+
+- unique identifiers such as `customer_id`
+- raw date fields
+- variables that may directly leak survey outcomes
+- variables too closely tied to the satisfaction survey process
+
+**Examples of likely leakage variables include:**
+
+- `base_satisfaction`
+- `tx_satisfaction`
+- `product_satisfaction`
+- `nps_score`
+- `last_survey_date`
+
+These variables are either conceptually very close to the target or likely measured alongside the same survey instrument, which could introduce information leakage into the predictive model.
+
+
+```{r}
+leakage_vars <- c(
+  "customer_id",
+  "first_tx",
+  "last_tx",
+  "last_survey_date",
+  "last_transaction_date",
+  "first_transaction_date",
+  "base_satisfaction",
+  "tx_satisfaction",
+  "product_satisfaction",
+  "nps_score"
+)
+
+model_data <- customer_model_data %>%
+  select(-any_of(leakage_vars))
+```
+
+After removing leakage variables, also remove duplicate transaction summary variables already present in the dataset.
+```{r}
+redundant_vars <- c(
+  "tx_count",
+  "avg_tx_value",
+  "total_tx_volume",
+  "monthly_transaction_count",
+  "average_transaction_value",
+  "total_transaction_volume",
+  "transaction_frequency"
+)
+
+model_data <- customer_model_data %>%
+  select(-any_of(c(leakage_vars, redundant_vars)))
+```
+
+Check current features:
+
+```{r}
+glimpse(model_data)
+```
+#### Remove Unnecessary features 
+
+```{r}
+remove_vars <- c(
+  # future information variables
+  "churn_probability",
+  "customer_lifetime_value",
+  
+  # text variables not used in modelling
+  "location",
+  "feature_requests",
+  "complaint_topics",
+  
+  # high-cardinality variable
+  "occupation",
+  
+  # redundant transaction summary variable
+  "weekend_transaction_ratio"
+)
+
+model_data <- model_data %>%
+  select(-any_of(remove_vars))
+
+remove_more <- c(
+  "total_amount_eng",
+  "unique_tx_types_eng",
+  "min_amount_eng"
+)
+
+model_data <- model_data %>%
+  select(-any_of(remove_more))
+```
+
+```{r}
+names(model_data)
+```
+#### Correlation Analysis of Numeric Predictors
+
+This step helps identify strong relationships between predictors, which may indicate redundancy or multicollinearity. Understanding these relationships supports more stable model development and clearer interpretation.
+
+```{r}
+numeric_data <- model_data %>%
+  select(where(is.numeric))
+```
+
+
+```{r}
+cor_matrix <- numeric_data %>%
+  select(-satisfaction_score) %>%
+  cor(use = "pairwise.complete.obs")
+cor_matrix
+```
+```{r}
+corrplot(
+  cor_matrix,
+  method = "color",
+  type = "upper",
+  tl.cex = 0.7,
+  number.cex = 0.6
+)
+```
+
+Identify Highly correlated Predictors 
+```{r}
+
+high_corr <- findCorrelation(cor_matrix, cutoff = 0.9)
+
+names(numeric_data)[high_corr]
+
+```
+A correlation heatmap was generated to visualize relationships among numeric predictors. The analysis identified that `sd_amount_eng` and `avg_amount_eng` are highly correlated, with a correlation coefficient greater than the threshold of 0.9.
+
+This high correlation indicates that both variables capture similar information regarding transaction magnitude. In such cases, it is advisable to remove one of the variables to reduce redundancy while preserving the essential behavioural signal.
+
+Between the two variables:
+
+`avg_amount_eng` represents the average transaction value of a customer.
+
+`sd_amount_eng` measures the variability of transaction values.
+
+Since average transaction value is generally more interpretable and widely used in behavioural analytics, `sd_amount_eng` was removed from the feature set.
+
+
+```{r}
+model_data <- model_data %>%
+  select(-sd_amount_eng)
+```
+
+**Final Set of Predictors**
+```{r}
+names(model_data)
+```
+
+
+```{r}
+length(setdiff(names(model_data), "satisfaction_score"))
+```
+
+### Data Splitting 
+
+The dataset is split into training, validation, and test sets using a 70/15/15 structure.
+
+```{r}
+set.seed(1234)
+
+initial_split_obj <- initial_split(model_data, prop = 0.70)
+
+train_data <- training(initial_split_obj)
+temp_data  <- testing(initial_split_obj)
+
+set.seed(1234)
+temp_split_obj <- initial_split(temp_data, prop = 0.50)
+
+valid_data <- training(temp_split_obj)
+test_data  <- testing(temp_split_obj)
+```
+
+
+### Preprocessing pipeline
+
+A preprocessing pipeline was implemented using the `recipes`package to ensure consistent data preparation across all models. The pipeline included median imputation for numeric variables, mode imputation for categorical variables, dummy encoding of nominal predictors, removal of zero-variance predictors, and normalization of numeric variables. While tree-based models are generally insensitive to scaling, normalization was included to ensure compatibility with linear regression and maintain a unified modelling workflow.
+
+This recipe includes:
+
+- dummy encoding of categorical variables,
+
+- median imputation for numeric variables,
+
+- mode imputation for nominal variables,
+
+- removal of zero variance predictors,
+
+- normalization of numeric variables.
+```{r}
+base_recipe <- recipe(satisfaction_score ~ ., data = train_data) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_zv(all_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+```
+
+```{r}
+base_recipe
+```
+## Linear Regression Model
+
+Linear regression provides a simple and interpretable benchmark.
+
+```{r}
+lm_spec <- linear_reg() %>%
+  set_engine("lm")
+
+lm_workflow <- workflow() %>%
+  add_recipe(base_recipe) %>%
+  add_model(lm_spec)
+
+lm_fit <- fit(lm_workflow, data = train_data)
+```
+
+```{r}
+reg_metrics <- metric_set(rmse, mae, rsq)
+```
+
+
+### Validation performance:
+
+```{r}
+lm_valid_pred <- predict(lm_fit, new_data = valid_data) %>%
+  bind_cols(valid_data %>% select(satisfaction_score))
+
+lm_valid_metrics <- reg_metrics(
+  lm_valid_pred,
+  truth = satisfaction_score,
+  estimate = .pred
+)
+
+lm_valid_metrics
+```
+
+### Predicted vs Actual Plot
+
+```{r}
+ggplot(lm_valid_pred, aes(x = satisfaction_score, y = .pred)) +
+  geom_point(alpha = 0.35) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    title = "Linear Regression: Predicted vs Actual",
+    x = "Actual Satisfaction Score",
+    y = "Predicted Satisfaction Score"
+  )
+```
+
+
+### Residual Plot 
+
+```{r}
+lm_valid_pred <- lm_valid_pred %>%
+  mutate(residual = satisfaction_score - .pred)
+
+ggplot(lm_valid_pred, aes(x = .pred, y = residual)) +
+  geom_point(alpha = 0.35) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    title = "Linear Regression: Residual Plot",
+    x = "Predicted Satisfaction Score",
+    y = "Residual"
+  )
+```
+
+
+### Coefficient Interpretation
+
+This visualization highlights the strongest linear predictors of satisfaction.
+
+```{r}
+lm_fit_engine <- extract_fit_parsnip(lm_fit)$fit
+
+lm_coef <- broom::tidy(lm_fit_engine) %>%
+  filter(term != "(Intercept)") %>%
+  mutate(abs_estimate = abs(estimate)) %>%
+  arrange(desc(abs_estimate)) %>%
+  slice_head(n = 15)
+
+ggplot(lm_coef, aes(x = reorder(term, abs_estimate), y = estimate)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Linear Regression: Top 15 Coefficients",
+    x = "Predictor",
+    y = "Coefficient Estimate"
+  )
+```
+
+## Decision Tree Regression Model
+
+Decision Tree Regression is useful because it captures non-linear relationships and produces an interpretable rule-based structure.
+
+```{r}
+tree_spec <- decision_tree(
+  mode = "regression",
+  tree_depth = tune(),
+  cost_complexity = tune(),
+  min_n = tune()
+) %>%
+  set_engine("rpart")
+```
+
+To tune the tree model, 5-fold cross-validation is performed on the training set.
+
+```{r}
+set.seed(1234)
+cv_folds <- vfold_cv(train_data, v = 5)
+```
+
+
+```{r}
+tree_grid <- grid_regular(
+  tree_depth(range = c(2L, 10L)),
+  cost_complexity(range = c(-4, -1)),
+  min_n(range = c(5L, 30L)),
+  levels = 4
+)
+```
+
+```{r}
+tree_workflow <- workflow() %>%
+  add_recipe(base_recipe) %>%
+  add_model(tree_spec)
+```
+
+```{r}
+#| eval: false
+tree_tuned <- tune_grid(
+  tree_workflow,
+  resamples = cv_folds,
+  grid = tree_grid,
+  metrics = reg_metrics
+)
+```
+
+```{r}
+#| eval: false
+#| include: false
+saveRDS(tree_tuned, "models/tree_tuned.rds")
+saveRDS(tree_workflow, "models/final_tree_workflow.rds")
+```
+
+```{r}
+#| include: false
+tree_tuned <- readRDS("models/tree_tuned.rds")
+```
+
+### Best Validation Settings
+
+```{r}
+show_best(tree_tuned, metric = "rmse")
+```
+
+```{r}
+best_tree <- select_best(tree_tuned, metric = "rmse")
+
+final_tree_workflow <- finalize_workflow(tree_workflow, best_tree)
+
+final_tree_fit <- fit(final_tree_workflow, data = train_data)
+```
+
+
+### Validation Performance
+
+```{r}
+
+tree_valid_pred <- predict(final_tree_fit, new_data = valid_data) %>%
+  bind_cols(valid_data %>% select(satisfaction_score))
+
+tree_valid_metrics <- reg_metrics(
+  tree_valid_pred,
+  truth = satisfaction_score,
+  estimate = .pred
+)
+
+tree_valid_metrics
+```
+
+### Predicted Vs Actual Plot
+
+```{r}
+ggplot(tree_valid_pred, aes(x = satisfaction_score, y = .pred)) +
+  geom_point(alpha = 0.35) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    title = "Decision Tree: Predicted vs Actual",
+    x = "Actual Satisfaction Score",
+    y = "Predicted Satisfaction Score"
+  )
+```
+
+
+### Residual Plot
+
+```{r}
+tree_valid_pred <- tree_valid_pred %>%
+  mutate(residual = satisfaction_score - .pred)
+
+ggplot(tree_valid_pred, aes(x = .pred, y = residual)) +
+  geom_point(alpha = 0.35) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    title = "Decision Tree: Residual Plot",
+    x = "Predicted Satisfaction Score",
+    y = "Residual"
+  )
+```
+
+
+
+### Decision Tree Visualization
+```{r}
+tree_engine_fit <- extract_fit_engine(final_tree_fit)
+
+rpart.plot(
+  tree_engine_fit,
+  type = 3,
+  fallen.leaves = TRUE,
+  tweak = 1.1,
+  roundint = FALSE
+)
+```
+
+## Random Forest Regression Model
+Random Forest Regression is used to improve predictive performance and provide more stable importance estimates across predictors.
+
+```{r}
+rf_spec <- rand_forest(
+  mode = "regression",
+  mtry = tune(),
+  min_n = tune(),
+  trees = tune()
+) %>%
+  set_engine("ranger", importance = "permutation")
+```
+
+Because mtry depends on the number of predictors after preprocessing, the tuning space is finalized through the workflow.
+
+```{r}
+
+rf_workflow <- workflow() %>%
+  add_recipe(base_recipe) %>%
+  add_model(rf_spec)
+
+rf_param <- rf_workflow %>%
+  extract_parameter_set_dials() %>%
+  finalize(train_data) %>%
+  update(
+    trees = trees(c(200L, 800L)),
+    min_n = min_n(c(5L, 25L))
+  )
+
+set.seed(1234)
+rf_grid <- grid_random(rf_param, size = 20)
+```
+
+```{r}
+#| label: rf
+#| eval: false
+library(doParallel)
+
+n_cores <- max(1, parallel::detectCores() - 1)
+cl <- makePSOCKcluster(n_cores)
+registerDoParallel(cl)
+
+set.seed(1234)
+
+rf_tuned <- tune_grid(
+  rf_workflow,
+  resamples = cv_folds,
+  grid = rf_grid,
+  metrics = reg_metrics,
+  control = control_grid(
+    verbose = TRUE,
+    allow_par = TRUE,
+    save_pred = TRUE
+  )
+)
+
+stopCluster(cl)
+registerDoSEQ()
+
+dir.create("models", showWarnings = FALSE)
+saveRDS(rf_tuned, "models/rf_tuned.rds")
 ```
 

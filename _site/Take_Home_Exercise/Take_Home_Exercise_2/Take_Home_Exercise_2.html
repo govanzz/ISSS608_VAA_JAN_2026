@@ -259,6 +259,33 @@ gtag('config', 'G-MQ4FWJ0Y7M', { 'anonymize_ip': true});
   <li><a href="#objective" id="toc-objective" class="nav-link active" data-scroll-target="#objective"><span class="header-section-number">1</span> Objective:</a></li>
   <li><a href="#load-packages" id="toc-load-packages" class="nav-link" data-scroll-target="#load-packages"><span class="header-section-number">2</span> Load Packages</a></li>
   <li><a href="#loading-dataset" id="toc-loading-dataset" class="nav-link" data-scroll-target="#loading-dataset"><span class="header-section-number">3</span> Loading Dataset</a></li>
+  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation"><span class="header-section-number">4</span> Data Preparation</a>
+  <ul>
+  <li><a href="#transaction-feature-engineering" id="toc-transaction-feature-engineering" class="nav-link" data-scroll-target="#transaction-feature-engineering"><span class="header-section-number">4.1</span> Transaction Feature Engineering</a></li>
+  <li><a href="#feature-selection" id="toc-feature-selection" class="nav-link" data-scroll-target="#feature-selection"><span class="header-section-number">4.2</span> Feature Selection</a>
+  <ul class="collapse">
+  <li><a href="#remove-unnecessary-features" id="toc-remove-unnecessary-features" class="nav-link" data-scroll-target="#remove-unnecessary-features"><span class="header-section-number">4.2.1</span> Remove Unnecessary features</a></li>
+  <li><a href="#correlation-analysis-of-numeric-predictors" id="toc-correlation-analysis-of-numeric-predictors" class="nav-link" data-scroll-target="#correlation-analysis-of-numeric-predictors"><span class="header-section-number">4.2.2</span> Correlation Analysis of Numeric Predictors</a></li>
+  </ul></li>
+  <li><a href="#data-splitting" id="toc-data-splitting" class="nav-link" data-scroll-target="#data-splitting"><span class="header-section-number">4.3</span> Data Splitting</a></li>
+  <li><a href="#preprocessing-pipeline" id="toc-preprocessing-pipeline" class="nav-link" data-scroll-target="#preprocessing-pipeline"><span class="header-section-number">4.4</span> Preprocessing pipeline</a></li>
+  </ul></li>
+  <li><a href="#linear-regression-model" id="toc-linear-regression-model" class="nav-link" data-scroll-target="#linear-regression-model"><span class="header-section-number">5</span> Linear Regression Model</a>
+  <ul>
+  <li><a href="#validation-performance" id="toc-validation-performance" class="nav-link" data-scroll-target="#validation-performance"><span class="header-section-number">5.1</span> Validation performance:</a></li>
+  <li><a href="#predicted-vs-actual-plot" id="toc-predicted-vs-actual-plot" class="nav-link" data-scroll-target="#predicted-vs-actual-plot"><span class="header-section-number">5.2</span> Predicted vs Actual Plot</a></li>
+  <li><a href="#residual-plot" id="toc-residual-plot" class="nav-link" data-scroll-target="#residual-plot"><span class="header-section-number">5.3</span> Residual Plot</a></li>
+  <li><a href="#coefficient-interpretation" id="toc-coefficient-interpretation" class="nav-link" data-scroll-target="#coefficient-interpretation"><span class="header-section-number">5.4</span> Coefficient Interpretation</a></li>
+  </ul></li>
+  <li><a href="#decision-tree-regression-model" id="toc-decision-tree-regression-model" class="nav-link" data-scroll-target="#decision-tree-regression-model"><span class="header-section-number">6</span> Decision Tree Regression Model</a>
+  <ul>
+  <li><a href="#best-validation-settings" id="toc-best-validation-settings" class="nav-link" data-scroll-target="#best-validation-settings"><span class="header-section-number">6.1</span> Best Validation Settings</a></li>
+  <li><a href="#validation-performance-1" id="toc-validation-performance-1" class="nav-link" data-scroll-target="#validation-performance-1"><span class="header-section-number">6.2</span> Validation Performance</a></li>
+  <li><a href="#predicted-vs-actual-plot-1" id="toc-predicted-vs-actual-plot-1" class="nav-link" data-scroll-target="#predicted-vs-actual-plot-1"><span class="header-section-number">6.3</span> Predicted Vs Actual Plot</a></li>
+  <li><a href="#residual-plot-1" id="toc-residual-plot-1" class="nav-link" data-scroll-target="#residual-plot-1"><span class="header-section-number">6.4</span> Residual Plot</a></li>
+  <li><a href="#decision-tree-visualization" id="toc-decision-tree-visualization" class="nav-link" data-scroll-target="#decision-tree-visualization"><span class="header-section-number">6.5</span> Decision Tree Visualization</a></li>
+  </ul></li>
+  <li><a href="#random-forest-regression-model" id="toc-random-forest-regression-model" class="nav-link" data-scroll-target="#random-forest-regression-model"><span class="header-section-number">7</span> Random Forest Regression Model</a></li>
   </ul>
 </nav>
     </div>
@@ -313,29 +340,950 @@ gtag('config', 'G-MQ4FWJ0Y7M', { 'anonymize_ip': true});
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  tidyverse,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  lubridate,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  tidymodels,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  rpart.plot,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  vip,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  tidymodels,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  lubridate,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  vip,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  rpart.plot,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  corrplot,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  patchwork</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">tidymodels_prefer</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  patchwork,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  scales,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  caret</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tidymodels_prefer</span>()</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_minimal</span>())</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="loading-dataset" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="loading-dataset"><span class="header-section-number">3</span> Loading Dataset</h2>
 <p>The <strong>COFINFAD (Colombian Fintech Financial Analytics Dataset)</strong> consists of two relational datasets provided in CSV format.</p>
-<p>The first dataset, <code>customer_data.csv</code>, contains customer-level information for <strong>48,723 individuals</strong>, including demographic attributes, product usage indicators, satisfaction metrics, and aggregated behavioral variables.</p>
-<p>The second dataset, <code>transactions_data.csv</code>, contains <strong>3,159,157 transaction records</strong> collected over a <strong>12-month period in 2023</strong>, capturing individual transaction events such as <strong>transaction amount, transaction date, and transaction type</strong>.</p>
-<p>Both datasets are linked through a common identifier, <code>customer_id</code>, which serves as the <strong>primary key</strong> in the customer dataset and as a <strong>foreign key</strong> in the transaction dataset.</p>
-<p>In this analysis, the datasets are loaded into the <strong>R environment</strong> using the <code>readr</code> package, after which transaction-level data can be <strong>aggregated and merged with the customer-level dataset</strong> for further modelling and analysis.</p>
+<p>The first dataset, <code>customer_data.csv</code>, contains customer-level information for 48,723 individuals, including demographic attributes, product usage indicators, satisfaction metrics, and aggregated behavioral variables.</p>
+<p>The second dataset, <code>transactions_data.csv</code>, contains 3,159,157 transaction records collected over a 12-month period in 2023, capturing individual transaction events such as transaction amount, transaction date, and transaction type.</p>
+<p>Both datasets are linked through a common identifier, <code>customer_id</code>, which serves as the primary key in the customer dataset and as a foreign key in the transaction dataset.</p>
+<p>In this analysis, the datasets are loaded into the environment using the <code>readr</code> package, after which transaction-level data can be aggregated and merged with the customer-level dataset for further modelling and analysis.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>customer_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/customer_data.csv"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>transactions_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/transactions_data.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data-preparation" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="data-preparation"><span class="header-section-number">4</span> Data Preparation</h2>
+<p>The first step is to remove observations with missing target values and ensure the transaction date field is in a proper date format.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>customer_data_clean <span class="ot">&lt;-</span> customer_data <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(satisfaction_score))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>transactions_data_clean <span class="ot">&lt;-</span> transactions_data <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">ymd</span>(date))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>customer_data_clean <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_customers =</span> <span class="fu">n</span>(),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_target =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(satisfaction_score))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  n_customers missing_target
+        &lt;int&gt;          &lt;int&gt;
+1       48723              0</code></pre>
+</div>
+</div>
+<section id="transaction-feature-engineering" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="transaction-feature-engineering"><span class="header-section-number">4.1</span> Transaction Feature Engineering</h3>
+<p>The transaction-level dataset is aggregated into customer-level behavioural indicators. These engineered variables capture transaction intensity, magnitude, variability, and recency.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>reference_date <span class="ot">&lt;-</span> <span class="fu">max</span>(transactions_data_clean<span class="sc">$</span>date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>transaction_features <span class="ot">&lt;-</span> transactions_data_clean <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(customer_id) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">trans_count_eng =</span> <span class="fu">n</span>(),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_amount_eng =</span> <span class="fu">mean</span>(amount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_amount_eng =</span> <span class="fu">sd</span>(amount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_amount_eng =</span> <span class="fu">sum</span>(amount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_amount_eng =</span> <span class="fu">max</span>(amount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_amount_eng =</span> <span class="fu">min</span>(amount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">recency_days_eng =</span> <span class="fu">as.numeric</span>(reference_date <span class="sc">-</span> <span class="fu">max</span>(date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">active_months_eng =</span> <span class="fu">n_distinct</span>(<span class="fu">floor_date</span>(date, <span class="at">unit =</span> <span class="st">"month"</span>)),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">unique_tx_types_eng =</span> <span class="fu">n_distinct</span>(type),</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">weekend_ratio_eng =</span> <span class="fu">mean</span>(<span class="fu">wday</span>(date) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">7</span>), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>They are joined to customer data based on customer id</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>customer_model_data <span class="ot">&lt;-</span> customer_data_clean <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(transaction_features, <span class="at">by =</span> <span class="st">"customer_id"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(customer_model_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 48,723
+Columns: 64
+$ customer_id                &lt;dbl&gt; 93716481, 49020929, 52690950, 23199751, 619…
+$ age                        &lt;dbl&gt; 44, 44, 45, 45, 44, 45, 44, 44, 45, 44, 44,…
+$ gender                     &lt;chr&gt; "Male", "Male", "Male", "Male", "Female", "…
+$ location                   &lt;chr&gt; "Pereira, Risaralda", "Cali, Valle del Cauc…
+$ income_bracket             &lt;chr&gt; "Very High", "Medium", "High", "High", "Med…
+$ occupation                 &lt;chr&gt; "Engineer", "Construction Worker", "Constru…
+$ education_level            &lt;chr&gt; "Master", "Bachelor", "Bachelor", "High Sch…
+$ marital_status             &lt;chr&gt; "Married", "Married", "Married", "Single", …
+$ household_size             &lt;dbl&gt; 5, 2, 4, 2, 3, 4, 4, 3, 1, 3, 5, 3, 3, 7, 3…
+$ acquisition_channel        &lt;chr&gt; "Partnership", "Paid Ad", "Paid Ad", "Refer…
+$ customer_segment           &lt;chr&gt; "occasional", "regular", "inactive", "inact…
+$ savings_account            &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, T…
+$ credit_card                &lt;lgl&gt; TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE…
+$ personal_loan              &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, F…
+$ investment_account         &lt;lgl&gt; FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALS…
+$ insurance_product          &lt;lgl&gt; TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FAL…
+$ active_products            &lt;dbl&gt; 1, 5, 3, 2, 1, 1, 1, 4, 2, 3, 1, 5, 3, 1, 1…
+$ app_logins_frequency       &lt;dbl&gt; 15, 30, 4, 15, 19, 15, 44, 22, 7, 11, 7, 30…
+$ feature_usage_diversity    &lt;dbl&gt; 3, 0, 4, 4, 1, 4, 6, 1, 1, 6, 3, 1, 2, 1, 3…
+$ bill_payment_user          &lt;lgl&gt; FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE,…
+$ auto_savings_enabled       &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FA…
+$ credit_utilization_ratio   &lt;dbl&gt; 0.17871029, NA, NA, NA, 0.40360553, 0.07786…
+$ international_transactions &lt;dbl&gt; 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0…
+$ failed_transactions        &lt;dbl&gt; 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0…
+$ tx_count                   &lt;dbl&gt; 76, 10, 10, 23, 18, 15, 24, 45, 134, 13, 18…
+$ avg_tx_value               &lt;dbl&gt; 1679872.4, 5445810.0, 640335.0, 660180.4, 1…
+$ total_tx_volume            &lt;dbl&gt; 127670300, 54458100, 6403350, 15184150, 262…
+$ first_tx                   &lt;chr&gt; "5/1/2023", "5/2/2023", "31/1/2023", "10/1/…
+$ last_tx                    &lt;chr&gt; "25/12/2023", "20/12/2023", "12/12/2023", "…
+$ base_satisfaction          &lt;dbl&gt; 9.213372, 6.073093, 8.198643, 7.529577, 6.6…
+$ tx_satisfaction            &lt;dbl&gt; 0.380, 0.050, 0.050, 0.115, 0.090, 0.075, 0…
+$ product_satisfaction       &lt;dbl&gt; 0.6, 0.2, 0.6, 0.4, 0.4, 0.6, 0.4, 0.4, 0.6…
+$ satisfaction_score         &lt;dbl&gt; 5, 3, 4, 4, 3, 4, 4, 4, 5, 4, 4, 5, 4, 3, 4…
+$ nps_score                  &lt;dbl&gt; -7, -46, -29, -31, -47, -29, -34, -36, -4, …
+$ last_survey_date           &lt;chr&gt; "16/12/2023", "5/5/2023", "16/11/2023", "7/…
+$ support_tickets_count      &lt;dbl&gt; 1, 1, 0, 2, 2, 1, 1, 0, 2, 0, 0, 2, 3, 1, 0…
+$ resolved_tickets_ratio     &lt;dbl&gt; 0.0000000, 1.0000000, 0.0000000, 0.5000000,…
+$ app_store_rating           &lt;dbl&gt; 3.5, 4.0, 5.0, 4.5, 4.0, 4.0, 5.0, 4.5, 4.5…
+$ feedback_sentiment         &lt;chr&gt; "Neutral", "Positive", "Positive", "Positiv…
+$ feature_requests           &lt;chr&gt; "Budgeting tools", NA, NA, "Cryptocurrency …
+$ complaint_topics           &lt;chr&gt; NA, NA, NA, NA, "App performance", NA, NA, …
+$ clv_segment                &lt;chr&gt; "Gold", "Bronze", "Gold", "Bronze", "Gold",…
+$ monthly_transaction_count  &lt;dbl&gt; 1.428571, 1.571429, 2.500000, 1.555556, 2.1…
+$ average_transaction_value  &lt;dbl&gt; 6054025.0, 2127413.6, 3575915.0, 1513353.6,…
+$ total_transaction_volume   &lt;dbl&gt; 60540250, 23401550, 35759150, 21186950, 116…
+$ transaction_frequency      &lt;dbl&gt; 0.03076923, 0.03293413, 0.05000000, 0.04778…
+$ last_transaction_date      &lt;chr&gt; "5/12/2023", "18/12/2023", "27/10/2023", "3…
+$ preferred_transaction_type &lt;chr&gt; "Transfer", "Transfer", "Transfer", "Transf…
+$ first_transaction_date     &lt;chr&gt; "5/1/2023", "5/2/2023", "31/1/2023", "10/1/…
+$ weekend_transaction_ratio  &lt;dbl&gt; 0.30000000, 0.18181818, 0.30000000, 0.14285…
+$ avg_daily_transactions     &lt;dbl&gt; 0.03076923, 0.03293413, 0.05000000, 0.04778…
+$ customer_tenure            &lt;dbl&gt; 11.633333, 11.500000, 8.766667, 10.733333, …
+$ churn_probability          &lt;dbl&gt; 0.3622688, 0.1817896, 0.3212651, 0.3366287,…
+$ customer_lifetime_value    &lt;dbl&gt; 312414808, 167022286, 19403711, 35978105, 3…
+$ trans_count_eng            &lt;int&gt; 76, 10, 10, 23, 18, 15, 24, 45, 134, 13, 18…
+$ avg_amount_eng             &lt;dbl&gt; 1679872.4, 5445810.0, 640335.0, 660180.4, 1…
+$ sd_amount_eng              &lt;dbl&gt; 1348358.8, 4143822.5, 405108.7, 305159.6, 1…
+$ total_amount_eng           &lt;dbl&gt; 127670300, 54458100, 6403350, 15184150, 262…
+$ max_amount_eng             &lt;dbl&gt; 7068550, 16129100, 1663650, 1314900, 422420…
+$ min_amount_eng             &lt;dbl&gt; 370400, 1391700, 215400, 163600, 2068850, 1…
+$ recency_days_eng           &lt;dbl&gt; NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN…
+$ active_months_eng          &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+$ unique_tx_types_eng        &lt;int&gt; 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 3…
+$ weekend_ratio_eng          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…</code></pre>
+</div>
+</div>
+<p>These engineered variables complement the summary variables already present in the customer table and strengthen the behavioural representation of each customer.</p>
+</section>
+<section id="feature-selection" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="feature-selection"><span class="header-section-number">4.2</span> Feature Selection</h3>
+<p>To build a robust predictive model, irrelevant and leakage-prone variables should be removed.</p>
+<p>In particular, the following types of variables are excluded:</p>
+<ul>
+<li>unique identifiers such as <code>customer_id</code></li>
+<li>raw date fields</li>
+<li>variables that may directly leak survey outcomes</li>
+<li>variables too closely tied to the satisfaction survey process</li>
+</ul>
+<p><strong>Examples of likely leakage variables include:</strong></p>
+<ul>
+<li><code>base_satisfaction</code></li>
+<li><code>tx_satisfaction</code></li>
+<li><code>product_satisfaction</code></li>
+<li><code>nps_score</code></li>
+<li><code>last_survey_date</code></li>
+</ul>
+<p>These variables are either conceptually very close to the target or likely measured alongside the same survey instrument, which could introduce information leakage into the predictive model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>leakage_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"customer_id"</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"first_tx"</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"last_tx"</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"last_survey_date"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"last_transaction_date"</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"first_transaction_date"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"base_satisfaction"</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"tx_satisfaction"</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"product_satisfaction"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"nps_score"</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>model_data <span class="ot">&lt;-</span> customer_model_data <span class="sc">%&gt;%</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">any_of</span>(leakage_vars))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>After removing leakage variables, also remove duplicate transaction summary variables already present in the dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>redundant_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"tx_count"</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"avg_tx_value"</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"total_tx_volume"</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"monthly_transaction_count"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"average_transaction_value"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"total_transaction_volume"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"transaction_frequency"</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>model_data <span class="ot">&lt;-</span> customer_model_data <span class="sc">%&gt;%</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">any_of</span>(<span class="fu">c</span>(leakage_vars, redundant_vars)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Check current features:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(model_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 48,723
+Columns: 47
+$ age                        &lt;dbl&gt; 44, 44, 45, 45, 44, 45, 44, 44, 45, 44, 44,…
+$ gender                     &lt;chr&gt; "Male", "Male", "Male", "Male", "Female", "…
+$ location                   &lt;chr&gt; "Pereira, Risaralda", "Cali, Valle del Cauc…
+$ income_bracket             &lt;chr&gt; "Very High", "Medium", "High", "High", "Med…
+$ occupation                 &lt;chr&gt; "Engineer", "Construction Worker", "Constru…
+$ education_level            &lt;chr&gt; "Master", "Bachelor", "Bachelor", "High Sch…
+$ marital_status             &lt;chr&gt; "Married", "Married", "Married", "Single", …
+$ household_size             &lt;dbl&gt; 5, 2, 4, 2, 3, 4, 4, 3, 1, 3, 5, 3, 3, 7, 3…
+$ acquisition_channel        &lt;chr&gt; "Partnership", "Paid Ad", "Paid Ad", "Refer…
+$ customer_segment           &lt;chr&gt; "occasional", "regular", "inactive", "inact…
+$ savings_account            &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, T…
+$ credit_card                &lt;lgl&gt; TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE…
+$ personal_loan              &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, F…
+$ investment_account         &lt;lgl&gt; FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, FALS…
+$ insurance_product          &lt;lgl&gt; TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FAL…
+$ active_products            &lt;dbl&gt; 1, 5, 3, 2, 1, 1, 1, 4, 2, 3, 1, 5, 3, 1, 1…
+$ app_logins_frequency       &lt;dbl&gt; 15, 30, 4, 15, 19, 15, 44, 22, 7, 11, 7, 30…
+$ feature_usage_diversity    &lt;dbl&gt; 3, 0, 4, 4, 1, 4, 6, 1, 1, 6, 3, 1, 2, 1, 3…
+$ bill_payment_user          &lt;lgl&gt; FALSE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE,…
+$ auto_savings_enabled       &lt;lgl&gt; FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FA…
+$ credit_utilization_ratio   &lt;dbl&gt; 0.17871029, NA, NA, NA, 0.40360553, 0.07786…
+$ international_transactions &lt;dbl&gt; 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0…
+$ failed_transactions        &lt;dbl&gt; 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0…
+$ satisfaction_score         &lt;dbl&gt; 5, 3, 4, 4, 3, 4, 4, 4, 5, 4, 4, 5, 4, 3, 4…
+$ support_tickets_count      &lt;dbl&gt; 1, 1, 0, 2, 2, 1, 1, 0, 2, 0, 0, 2, 3, 1, 0…
+$ resolved_tickets_ratio     &lt;dbl&gt; 0.0000000, 1.0000000, 0.0000000, 0.5000000,…
+$ app_store_rating           &lt;dbl&gt; 3.5, 4.0, 5.0, 4.5, 4.0, 4.0, 5.0, 4.5, 4.5…
+$ feedback_sentiment         &lt;chr&gt; "Neutral", "Positive", "Positive", "Positiv…
+$ feature_requests           &lt;chr&gt; "Budgeting tools", NA, NA, "Cryptocurrency …
+$ complaint_topics           &lt;chr&gt; NA, NA, NA, NA, "App performance", NA, NA, …
+$ clv_segment                &lt;chr&gt; "Gold", "Bronze", "Gold", "Bronze", "Gold",…
+$ preferred_transaction_type &lt;chr&gt; "Transfer", "Transfer", "Transfer", "Transf…
+$ weekend_transaction_ratio  &lt;dbl&gt; 0.30000000, 0.18181818, 0.30000000, 0.14285…
+$ avg_daily_transactions     &lt;dbl&gt; 0.03076923, 0.03293413, 0.05000000, 0.04778…
+$ customer_tenure            &lt;dbl&gt; 11.633333, 11.500000, 8.766667, 10.733333, …
+$ churn_probability          &lt;dbl&gt; 0.3622688, 0.1817896, 0.3212651, 0.3366287,…
+$ customer_lifetime_value    &lt;dbl&gt; 312414808, 167022286, 19403711, 35978105, 3…
+$ trans_count_eng            &lt;int&gt; 76, 10, 10, 23, 18, 15, 24, 45, 134, 13, 18…
+$ avg_amount_eng             &lt;dbl&gt; 1679872.4, 5445810.0, 640335.0, 660180.4, 1…
+$ sd_amount_eng              &lt;dbl&gt; 1348358.8, 4143822.5, 405108.7, 305159.6, 1…
+$ total_amount_eng           &lt;dbl&gt; 127670300, 54458100, 6403350, 15184150, 262…
+$ max_amount_eng             &lt;dbl&gt; 7068550, 16129100, 1663650, 1314900, 422420…
+$ min_amount_eng             &lt;dbl&gt; 370400, 1391700, 215400, 163600, 2068850, 1…
+$ recency_days_eng           &lt;dbl&gt; NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN…
+$ active_months_eng          &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+$ unique_tx_types_eng        &lt;int&gt; 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 3…
+$ weekend_ratio_eng          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…</code></pre>
+</div>
+</div>
+<section id="remove-unnecessary-features" class="level4" data-number="4.2.1">
+<h4 data-number="4.2.1" class="anchored" data-anchor-id="remove-unnecessary-features"><span class="header-section-number">4.2.1</span> Remove Unnecessary features</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>remove_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># future information variables</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"churn_probability"</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"customer_lifetime_value"</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># text variables not used in modelling</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"location"</span>,</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"feature_requests"</span>,</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"complaint_topics"</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># high-cardinality variable</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"occupation"</span>,</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># redundant transaction summary variable</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"weekend_transaction_ratio"</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>model_data <span class="ot">&lt;-</span> model_data <span class="sc">%&gt;%</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">any_of</span>(remove_vars))</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>remove_more <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">"total_amount_eng"</span>,</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"unique_tx_types_eng"</span>,</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"min_amount_eng"</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>model_data <span class="ot">&lt;-</span> model_data <span class="sc">%&gt;%</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">any_of</span>(remove_more))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(model_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "age"                        "gender"                    
+ [3] "income_bracket"             "education_level"           
+ [5] "marital_status"             "household_size"            
+ [7] "acquisition_channel"        "customer_segment"          
+ [9] "savings_account"            "credit_card"               
+[11] "personal_loan"              "investment_account"        
+[13] "insurance_product"          "active_products"           
+[15] "app_logins_frequency"       "feature_usage_diversity"   
+[17] "bill_payment_user"          "auto_savings_enabled"      
+[19] "credit_utilization_ratio"   "international_transactions"
+[21] "failed_transactions"        "satisfaction_score"        
+[23] "support_tickets_count"      "resolved_tickets_ratio"    
+[25] "app_store_rating"           "feedback_sentiment"        
+[27] "clv_segment"                "preferred_transaction_type"
+[29] "avg_daily_transactions"     "customer_tenure"           
+[31] "trans_count_eng"            "avg_amount_eng"            
+[33] "sd_amount_eng"              "max_amount_eng"            
+[35] "recency_days_eng"           "active_months_eng"         
+[37] "weekend_ratio_eng"         </code></pre>
+</div>
+</div>
+</section>
+<section id="correlation-analysis-of-numeric-predictors" class="level4" data-number="4.2.2">
+<h4 data-number="4.2.2" class="anchored" data-anchor-id="correlation-analysis-of-numeric-predictors"><span class="header-section-number">4.2.2</span> Correlation Analysis of Numeric Predictors</h4>
+<p>This step helps identify strong relationships between predictors, which may indicate redundancy or multicollinearity. Understanding these relationships supports more stable model development and clearer interpretation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>numeric_data <span class="ot">&lt;-</span> model_data <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">where</span>(is.numeric))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>cor_matrix <span class="ot">&lt;-</span> numeric_data <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>satisfaction_score) <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(<span class="at">use =</span> <span class="st">"pairwise.complete.obs"</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>cor_matrix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                     age household_size active_products
+age                         1.000000e+00  -0.0018904645    5.666596e-03
+household_size             -1.890464e-03   1.0000000000   -5.885494e-03
+active_products             5.666596e-03  -0.0058854944    1.000000e+00
+app_logins_frequency        5.814772e-03   0.0021753468   -7.104032e-06
+feature_usage_diversity     2.619972e-01  -0.0013424481    3.873412e-03
+credit_utilization_ratio   -6.256504e-05   0.0001439245   -2.757161e-04
+international_transactions -5.083004e-03  -0.0032834012   -2.139703e-03
+failed_transactions        -3.209013e-03  -0.0035482211    3.318095e-03
+support_tickets_count       7.500501e-03  -0.0108234825    4.615529e-03
+resolved_tickets_ratio      7.931414e-04  -0.0045976544    5.933214e-03
+app_store_rating           -3.890837e-03  -0.0002216323    6.185158e-03
+avg_daily_transactions     -2.270313e-04  -0.0060380721   -1.085255e-03
+customer_tenure            -1.673004e-03  -0.0003585324   -2.404398e-03
+trans_count_eng             7.606780e-03   0.0053538156   -1.066643e-02
+avg_amount_eng              1.647793e-03   0.0089380624   -1.284151e-02
+sd_amount_eng              -5.089785e-03   0.0115930177   -1.126301e-02
+max_amount_eng             -5.696795e-03   0.0131140428   -1.136815e-02
+recency_days_eng                      NA             NA              NA
+active_months_eng                     NA             NA              NA
+weekend_ratio_eng                     NA             NA              NA
+                           app_logins_frequency feature_usage_diversity
+age                                5.814772e-03            0.2619972418
+household_size                     2.175347e-03           -0.0013424481
+active_products                   -7.104032e-06            0.0038734123
+app_logins_frequency               1.000000e+00           -0.0103416645
+feature_usage_diversity           -1.034166e-02            1.0000000000
+credit_utilization_ratio           3.421408e-03           -0.0033384099
+international_transactions         5.493689e-03            0.0011906455
+failed_transactions                3.301623e-03            0.0058929871
+support_tickets_count             -4.812624e-04           -0.0008731879
+resolved_tickets_ratio             5.952539e-03           -0.0022107415
+app_store_rating                  -7.251385e-03           -0.0038899701
+avg_daily_transactions            -4.349112e-03           -0.0033412091
+customer_tenure                    3.276367e-03            0.0090618386
+trans_count_eng                    8.494227e-03           -0.0171802040
+avg_amount_eng                     6.553422e-03           -0.0107525559
+sd_amount_eng                     -8.228662e-04           -0.0128994944
+max_amount_eng                     4.520678e-03           -0.0179036591
+recency_days_eng                             NA                      NA
+active_months_eng                            NA                      NA
+weekend_ratio_eng                            NA                      NA
+                           credit_utilization_ratio international_transactions
+age                                   -6.256504e-05              -0.0050830038
+household_size                         1.439245e-04              -0.0032834012
+active_products                       -2.757161e-04              -0.0021397033
+app_logins_frequency                   3.421408e-03               0.0054936895
+feature_usage_diversity               -3.338410e-03               0.0011906455
+credit_utilization_ratio               1.000000e+00               0.0010203592
+international_transactions             1.020359e-03               1.0000000000
+failed_transactions                   -1.282701e-03               0.0013780738
+support_tickets_count                 -5.879672e-04              -0.0113704528
+resolved_tickets_ratio                -3.889665e-04              -0.0079632766
+app_store_rating                      -4.654439e-03               0.0020894115
+avg_daily_transactions                 1.290921e-03              -0.0032697874
+customer_tenure                       -1.880864e-03              -0.0001388438
+trans_count_eng                       -8.673153e-03              -0.0106365950
+avg_amount_eng                        -6.182283e-03              -0.0088155241
+sd_amount_eng                         -4.211828e-03              -0.0072449081
+max_amount_eng                        -4.701441e-03              -0.0011921950
+recency_days_eng                                 NA                         NA
+active_months_eng                                NA                         NA
+weekend_ratio_eng                                NA                         NA
+                           failed_transactions support_tickets_count
+age                              -0.0032090128          0.0075005011
+household_size                   -0.0035482211         -0.0108234825
+active_products                   0.0033180946          0.0046155288
+app_logins_frequency              0.0033016231         -0.0004812624
+feature_usage_diversity           0.0058929871         -0.0008731879
+credit_utilization_ratio         -0.0012827007         -0.0005879672
+international_transactions        0.0013780738         -0.0113704528
+failed_transactions               1.0000000000          0.0075240061
+support_tickets_count             0.0075240061          1.0000000000
+resolved_tickets_ratio            0.0046158352          0.6169275178
+app_store_rating                  0.0025021924         -0.0051310304
+avg_daily_transactions            0.0082765098         -0.0027977126
+customer_tenure                  -0.0011483427          0.0031318579
+trans_count_eng                  -0.0007504236         -0.0046945082
+avg_amount_eng                    0.0026935987         -0.0032918504
+sd_amount_eng                     0.0032132757         -0.0048760401
+max_amount_eng                    0.0018334556         -0.0069949380
+recency_days_eng                            NA                    NA
+active_months_eng                           NA                    NA
+weekend_ratio_eng                           NA                    NA
+                           resolved_tickets_ratio app_store_rating
+age                                  0.0007931414    -0.0038908370
+household_size                      -0.0045976544    -0.0002216323
+active_products                      0.0059332140     0.0061851583
+app_logins_frequency                 0.0059525387    -0.0072513848
+feature_usage_diversity             -0.0022107415    -0.0038899701
+credit_utilization_ratio            -0.0003889665    -0.0046544390
+international_transactions          -0.0079632766     0.0020894115
+failed_transactions                  0.0046158352     0.0025021924
+support_tickets_count                0.6169275178    -0.0051310304
+resolved_tickets_ratio               1.0000000000    -0.0040270505
+app_store_rating                    -0.0040270505     1.0000000000
+avg_daily_transactions              -0.0045670263     0.0041255983
+customer_tenure                     -0.0015480863    -0.0009010060
+trans_count_eng                     -0.0013526236     0.0013746282
+avg_amount_eng                      -0.0065180693    -0.0133081876
+sd_amount_eng                       -0.0064386709    -0.0172430731
+max_amount_eng                      -0.0040841202    -0.0150129203
+recency_days_eng                               NA               NA
+active_months_eng                              NA               NA
+weekend_ratio_eng                              NA               NA
+                           avg_daily_transactions customer_tenure
+age                                 -0.0002270313   -0.0016730041
+household_size                      -0.0060380721   -0.0003585324
+active_products                     -0.0010852554   -0.0024043978
+app_logins_frequency                -0.0043491120    0.0032763674
+feature_usage_diversity             -0.0033412091    0.0090618386
+credit_utilization_ratio             0.0012909205   -0.0018808637
+international_transactions          -0.0032697874   -0.0001388438
+failed_transactions                  0.0082765098   -0.0011483427
+support_tickets_count               -0.0027977126    0.0031318579
+resolved_tickets_ratio              -0.0045670263   -0.0015480863
+app_store_rating                     0.0041255983   -0.0009010060
+avg_daily_transactions               1.0000000000    0.0610489465
+customer_tenure                      0.0610489465    1.0000000000
+trans_count_eng                     -0.0021503161   -0.0009650433
+avg_amount_eng                       0.0023296334   -0.0154553451
+sd_amount_eng                       -0.0004404727   -0.0110801634
+max_amount_eng                      -0.0025345346   -0.0109381986
+recency_days_eng                               NA              NA
+active_months_eng                              NA              NA
+weekend_ratio_eng                              NA              NA
+                           trans_count_eng avg_amount_eng sd_amount_eng
+age                           0.0076067801    0.001647793 -0.0050897846
+household_size                0.0053538156    0.008938062  0.0115930177
+active_products              -0.0106664256   -0.012841511 -0.0112630128
+app_logins_frequency          0.0084942268    0.006553422 -0.0008228662
+feature_usage_diversity      -0.0171802040   -0.010752556 -0.0128994944
+credit_utilization_ratio     -0.0086731529   -0.006182283 -0.0042118282
+international_transactions   -0.0106365950   -0.008815524 -0.0072449081
+failed_transactions          -0.0007504236    0.002693599  0.0032132757
+support_tickets_count        -0.0046945082   -0.003291850 -0.0048760401
+resolved_tickets_ratio       -0.0013526236   -0.006518069 -0.0064386709
+app_store_rating              0.0013746282   -0.013308188 -0.0172430731
+avg_daily_transactions       -0.0021503161    0.002329633 -0.0004404727
+customer_tenure              -0.0009650433   -0.015455345 -0.0110801634
+trans_count_eng               1.0000000000    0.027517913  0.0298579642
+avg_amount_eng                0.0275179133    1.000000000  0.9224517101
+sd_amount_eng                 0.0298579642    0.922451710  1.0000000000
+max_amount_eng                0.2113566216    0.812998393  0.9007257535
+recency_days_eng                        NA             NA            NA
+active_months_eng                       NA             NA            NA
+weekend_ratio_eng                       NA             NA            NA
+                           max_amount_eng recency_days_eng active_months_eng
+age                          -0.005696795               NA                NA
+household_size                0.013114043               NA                NA
+active_products              -0.011368151               NA                NA
+app_logins_frequency          0.004520678               NA                NA
+feature_usage_diversity      -0.017903659               NA                NA
+credit_utilization_ratio     -0.004701441               NA                NA
+international_transactions   -0.001192195               NA                NA
+failed_transactions           0.001833456               NA                NA
+support_tickets_count        -0.006994938               NA                NA
+resolved_tickets_ratio       -0.004084120               NA                NA
+app_store_rating             -0.015012920               NA                NA
+avg_daily_transactions       -0.002534535               NA                NA
+customer_tenure              -0.010938199               NA                NA
+trans_count_eng               0.211356622               NA                NA
+avg_amount_eng                0.812998393               NA                NA
+sd_amount_eng                 0.900725753               NA                NA
+max_amount_eng                1.000000000               NA                NA
+recency_days_eng                       NA               NA                NA
+active_months_eng                      NA               NA                NA
+weekend_ratio_eng                      NA               NA                NA
+                           weekend_ratio_eng
+age                                       NA
+household_size                            NA
+active_products                           NA
+app_logins_frequency                      NA
+feature_usage_diversity                   NA
+credit_utilization_ratio                  NA
+international_transactions                NA
+failed_transactions                       NA
+support_tickets_count                     NA
+resolved_tickets_ratio                    NA
+app_store_rating                          NA
+avg_daily_transactions                    NA
+customer_tenure                           NA
+trans_count_eng                           NA
+avg_amount_eng                            NA
+sd_amount_eng                             NA
+max_amount_eng                            NA
+recency_days_eng                          NA
+active_months_eng                         NA
+weekend_ratio_eng                         NA</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  cor_matrix,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"color"</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"upper"</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">tl.cex =</span> <span class="fl">0.7</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">number.cex =</span> <span class="fl">0.6</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Exercise_2_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Identify Highly correlated Predictors</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>high_corr <span class="ot">&lt;-</span> <span class="fu">findCorrelation</span>(cor_matrix, <span class="at">cutoff =</span> <span class="fl">0.9</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(numeric_data)[high_corr]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "sd_amount_eng"  "avg_amount_eng"</code></pre>
+</div>
+</div>
+<p>A correlation heatmap was generated to visualize relationships among numeric predictors. The analysis identified that <code>sd_amount_eng</code> and <code>avg_amount_eng</code> are highly correlated, with a correlation coefficient greater than the threshold of 0.9.</p>
+<p>This high correlation indicates that both variables capture similar information regarding transaction magnitude. In such cases, it is advisable to remove one of the variables to reduce redundancy while preserving the essential behavioural signal.</p>
+<p>Between the two variables:</p>
+<p><code>avg_amount_eng</code> represents the average transaction value of a customer.</p>
+<p><code>sd_amount_eng</code> measures the variability of transaction values.</p>
+<p>Since average transaction value is generally more interpretable and widely used in behavioural analytics, <code>sd_amount_eng</code> was removed from the feature set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>model_data <span class="ot">&lt;-</span> model_data <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>sd_amount_eng)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Final Set of Predictors</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(model_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "age"                        "gender"                    
+ [3] "income_bracket"             "education_level"           
+ [5] "marital_status"             "household_size"            
+ [7] "acquisition_channel"        "customer_segment"          
+ [9] "savings_account"            "credit_card"               
+[11] "personal_loan"              "investment_account"        
+[13] "insurance_product"          "active_products"           
+[15] "app_logins_frequency"       "feature_usage_diversity"   
+[17] "bill_payment_user"          "auto_savings_enabled"      
+[19] "credit_utilization_ratio"   "international_transactions"
+[21] "failed_transactions"        "satisfaction_score"        
+[23] "support_tickets_count"      "resolved_tickets_ratio"    
+[25] "app_store_rating"           "feedback_sentiment"        
+[27] "clv_segment"                "preferred_transaction_type"
+[29] "avg_daily_transactions"     "customer_tenure"           
+[31] "trans_count_eng"            "avg_amount_eng"            
+[33] "max_amount_eng"             "recency_days_eng"          
+[35] "active_months_eng"          "weekend_ratio_eng"         </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">setdiff</span>(<span class="fu">names</span>(model_data), <span class="st">"satisfaction_score"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 35</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="data-splitting" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="data-splitting"><span class="header-section-number">4.3</span> Data Splitting</h3>
+<p>The dataset is split into training, validation, and test sets using a 70/15/15 structure.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>initial_split_obj <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(model_data, <span class="at">prop =</span> <span class="fl">0.70</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> <span class="fu">training</span>(initial_split_obj)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>temp_data  <span class="ot">&lt;-</span> <span class="fu">testing</span>(initial_split_obj)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>temp_split_obj <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(temp_data, <span class="at">prop =</span> <span class="fl">0.50</span>)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>valid_data <span class="ot">&lt;-</span> <span class="fu">training</span>(temp_split_obj)</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>test_data  <span class="ot">&lt;-</span> <span class="fu">testing</span>(temp_split_obj)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="preprocessing-pipeline" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="preprocessing-pipeline"><span class="header-section-number">4.4</span> Preprocessing pipeline</h3>
+<p>A preprocessing pipeline was implemented using the <code>recipes</code>package to ensure consistent data preparation across all models. The pipeline included median imputation for numeric variables, mode imputation for categorical variables, dummy encoding of nominal predictors, removal of zero-variance predictors, and normalization of numeric variables. While tree-based models are generally insensitive to scaling, normalization was included to ensure compatibility with linear regression and maintain a unified modelling workflow.</p>
+<p>This recipe includes:</p>
+<ul>
+<li><p>dummy encoding of categorical variables,</p></li>
+<li><p>median imputation for numeric variables,</p></li>
+<li><p>mode imputation for nominal variables,</p></li>
+<li><p>removal of zero variance predictors,</p></li>
+<li><p>normalization of numeric variables.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>base_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(satisfaction_score <span class="sc">~</span> ., <span class="at">data =</span> train_data) <span class="sc">%&gt;%</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_median</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_mode</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_zv</span>(<span class="fu">all_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>base_recipe</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="linear-regression-model" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="linear-regression-model"><span class="header-section-number">5</span> Linear Regression Model</h2>
+<p>Linear regression provides a simple and interpretable benchmark.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>lm_spec <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"lm"</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>lm_workflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(base_recipe) <span class="sc">%&gt;%</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(lm_spec)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>lm_fit <span class="ot">&lt;-</span> <span class="fu">fit</span>(lm_workflow, <span class="at">data =</span> train_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>reg_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(rmse, mae, rsq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="validation-performance" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="validation-performance"><span class="header-section-number">5.1</span> Validation performance:</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>lm_valid_pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(lm_fit, <span class="at">new_data =</span> valid_data) <span class="sc">%&gt;%</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(valid_data <span class="sc">%&gt;%</span> <span class="fu">select</span>(satisfaction_score))</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>lm_valid_metrics <span class="ot">&lt;-</span> <span class="fu">reg_metrics</span>(</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  lm_valid_pred,</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">truth =</span> satisfaction_score,</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> .pred</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>lm_valid_metrics</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard      0.577 
+2 mae     standard      0.426 
+3 rsq     standard      0.0233</code></pre>
+</div>
+</div>
+</section>
+<section id="predicted-vs-actual-plot" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="predicted-vs-actual-plot"><span class="header-section-number">5.2</span> Predicted vs Actual Plot</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lm_valid_pred, <span class="fu">aes</span>(<span class="at">x =</span> satisfaction_score, <span class="at">y =</span> .pred)) <span class="sc">+</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.35</span>) <span class="sc">+</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Linear Regression: Predicted vs Actual"</span>,</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Actual Satisfaction Score"</span>,</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predicted Satisfaction Score"</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Exercise_2_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="residual-plot" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="residual-plot"><span class="header-section-number">5.3</span> Residual Plot</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>lm_valid_pred <span class="ot">&lt;-</span> lm_valid_pred <span class="sc">%&gt;%</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">residual =</span> satisfaction_score <span class="sc">-</span> .pred)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lm_valid_pred, <span class="fu">aes</span>(<span class="at">x =</span> .pred, <span class="at">y =</span> residual)) <span class="sc">+</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.35</span>) <span class="sc">+</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Linear Regression: Residual Plot"</span>,</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Predicted Satisfaction Score"</span>,</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Residual"</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Exercise_2_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="coefficient-interpretation" class="level3" data-number="5.4">
+<h3 data-number="5.4" class="anchored" data-anchor-id="coefficient-interpretation"><span class="header-section-number">5.4</span> Coefficient Interpretation</h3>
+<p>This visualization highlights the strongest linear predictors of satisfaction.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>lm_fit_engine <span class="ot">&lt;-</span> <span class="fu">extract_fit_parsnip</span>(lm_fit)<span class="sc">$</span>fit</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>lm_coef <span class="ot">&lt;-</span> broom<span class="sc">::</span><span class="fu">tidy</span>(lm_fit_engine) <span class="sc">%&gt;%</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">abs_estimate =</span> <span class="fu">abs</span>(estimate)) <span class="sc">%&gt;%</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(abs_estimate)) <span class="sc">%&gt;%</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">15</span>)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lm_coef, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(term, abs_estimate), <span class="at">y =</span> estimate)) <span class="sc">+</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Linear Regression: Top 15 Coefficients"</span>,</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Predictor"</span>,</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Coefficient Estimate"</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Exercise_2_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="decision-tree-regression-model" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="decision-tree-regression-model"><span class="header-section-number">6</span> Decision Tree Regression Model</h2>
+<p>Decision Tree Regression is useful because it captures non-linear relationships and produces an interpretable rule-based structure.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>tree_spec <span class="ot">&lt;-</span> <span class="fu">decision_tree</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">mode =</span> <span class="st">"regression"</span>,</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">tree_depth =</span> <span class="fu">tune</span>(),</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">cost_complexity =</span> <span class="fu">tune</span>(),</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">min_n =</span> <span class="fu">tune</span>()</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"rpart"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To tune the tree model, 5-fold cross-validation is performed on the training set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>cv_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(train_data, <span class="at">v =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>tree_grid <span class="ot">&lt;-</span> <span class="fu">grid_regular</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tree_depth</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">2</span>L, <span class="dv">10</span>L)),</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cost_complexity</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="sc">-</span><span class="dv">1</span>)),</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">min_n</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="dv">5</span>L, <span class="dv">30</span>L)),</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="dv">4</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>tree_workflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(base_recipe) <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(tree_spec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>tree_tuned <span class="ot">&lt;-</span> <span class="fu">tune_grid</span>(</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  tree_workflow,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> cv_folds,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">grid =</span> tree_grid,</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> reg_metrics</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="best-validation-settings" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="best-validation-settings"><span class="header-section-number">6.1</span> Best Validation Settings</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">show_best</span>(tree_tuned, <span class="at">metric =</span> <span class="st">"rmse"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 9
+  cost_complexity tree_depth min_n .metric .estimator  mean     n std_err
+            &lt;dbl&gt;      &lt;int&gt; &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+1           0.001          7     5 rmse    standard   0.573     5 0.00320
+2           0.001          7    13 rmse    standard   0.573     5 0.00320
+3           0.001          7    21 rmse    standard   0.573     5 0.00320
+4           0.001          7    30 rmse    standard   0.573     5 0.00320
+5           0.001         10     5 rmse    standard   0.573     5 0.00320
+# ℹ 1 more variable: .config &lt;chr&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>best_tree <span class="ot">&lt;-</span> <span class="fu">select_best</span>(tree_tuned, <span class="at">metric =</span> <span class="st">"rmse"</span>)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>final_tree_workflow <span class="ot">&lt;-</span> <span class="fu">finalize_workflow</span>(tree_workflow, best_tree)</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>final_tree_fit <span class="ot">&lt;-</span> <span class="fu">fit</span>(final_tree_workflow, <span class="at">data =</span> train_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="validation-performance-1" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="validation-performance-1"><span class="header-section-number">6.2</span> Validation Performance</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>tree_valid_pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(final_tree_fit, <span class="at">new_data =</span> valid_data) <span class="sc">%&gt;%</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(valid_data <span class="sc">%&gt;%</span> <span class="fu">select</span>(satisfaction_score))</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>tree_valid_metrics <span class="ot">&lt;-</span> <span class="fu">reg_metrics</span>(</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  tree_valid_pred,</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">truth =</span> satisfaction_score,</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> .pred</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>tree_valid_metrics</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  .metric .estimator .estimate
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+1 rmse    standard      0.580 
+2 mae     standard      0.430 
+3 rsq     standard      0.0118</code></pre>
+</div>
+</div>
+</section>
+<section id="predicted-vs-actual-plot-1" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="predicted-vs-actual-plot-1"><span class="header-section-number">6.3</span> Predicted Vs Actual Plot</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(tree_valid_pred, <span class="fu">aes</span>(<span class="at">x =</span> satisfaction_score, <span class="at">y =</span> .pred)) <span class="sc">+</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.35</span>) <span class="sc">+</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Decision Tree: Predicted vs Actual"</span>,</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Actual Satisfaction Score"</span>,</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predicted Satisfaction Score"</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Exercise_2_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="residual-plot-1" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="residual-plot-1"><span class="header-section-number">6.4</span> Residual Plot</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>tree_valid_pred <span class="ot">&lt;-</span> tree_valid_pred <span class="sc">%&gt;%</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">residual =</span> satisfaction_score <span class="sc">-</span> .pred)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(tree_valid_pred, <span class="fu">aes</span>(<span class="at">x =</span> .pred, <span class="at">y =</span> residual)) <span class="sc">+</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.35</span>) <span class="sc">+</span></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Decision Tree: Residual Plot"</span>,</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Predicted Satisfaction Score"</span>,</span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Residual"</span></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Exercise_2_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="decision-tree-visualization" class="level3" data-number="6.5">
+<h3 data-number="6.5" class="anchored" data-anchor-id="decision-tree-visualization"><span class="header-section-number">6.5</span> Decision Tree Visualization</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>tree_engine_fit <span class="ot">&lt;-</span> <span class="fu">extract_fit_engine</span>(final_tree_fit)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rpart.plot</span>(</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  tree_engine_fit,</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="dv">3</span>,</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">fallen.leaves =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">tweak =</span> <span class="fl">1.1</span>,</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">roundint =</span> <span class="cn">FALSE</span></span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take_Home_Exercise_2_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="random-forest-regression-model" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="random-forest-regression-model"><span class="header-section-number">7</span> Random Forest Regression Model</h2>
+<p>Random Forest Regression is used to improve predictive performance and provide more stable importance estimates across predictors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>rf_spec <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">mode =</span> <span class="st">"regression"</span>,</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mtry =</span> <span class="fu">tune</span>(),</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">min_n =</span> <span class="fu">tune</span>(),</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">trees =</span> <span class="fu">tune</span>()</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">importance =</span> <span class="st">"permutation"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Because mtry depends on the number of predictors after preprocessing, the tuning space is finalized through the workflow.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>rf_workflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(base_recipe) <span class="sc">%&gt;%</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_spec)</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>rf_param <span class="ot">&lt;-</span> rf_workflow <span class="sc">%&gt;%</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_parameter_set_dials</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">finalize</span>(train_data) <span class="sc">%&gt;%</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update</span>(</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">trees =</span> <span class="fu">trees</span>(<span class="fu">c</span>(<span class="dv">200</span>L, <span class="dv">800</span>L)),</span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_n =</span> <span class="fu">min_n</span>(<span class="fu">c</span>(<span class="dv">5</span>L, <span class="dv">25</span>L))</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a>rf_grid <span class="ot">&lt;-</span> <span class="fu">grid_random</span>(rf_param, <span class="at">size =</span> <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doParallel)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>n_cores <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="dv">1</span>, parallel<span class="sc">::</span><span class="fu">detectCores</span>() <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>cl <span class="ot">&lt;-</span> <span class="fu">makePSOCKcluster</span>(n_cores)</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="fu">registerDoParallel</span>(cl)</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>rf_tuned <span class="ot">&lt;-</span> <span class="fu">tune_grid</span>(</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>  rf_workflow,</span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> cv_folds,</span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">grid =</span> rf_grid,</span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> reg_metrics,</span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">control_grid</span>(</span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">verbose =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">allow_par =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">save_pred =</span> <span class="cn">TRUE</span></span>
+<span id="cb53-18"><a href="#cb53-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb53-19"><a href="#cb53-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb53-20"><a href="#cb53-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-21"><a href="#cb53-21" aria-hidden="true" tabindex="-1"></a><span class="fu">stopCluster</span>(cl)</span>
+<span id="cb53-22"><a href="#cb53-22" aria-hidden="true" tabindex="-1"></a><span class="fu">registerDoSEQ</span>()</span>
+<span id="cb53-23"><a href="#cb53-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-24"><a href="#cb53-24" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"models"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb53-25"><a href="#cb53-25" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(rf_tuned, <span class="st">"models/rf_tuned.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
