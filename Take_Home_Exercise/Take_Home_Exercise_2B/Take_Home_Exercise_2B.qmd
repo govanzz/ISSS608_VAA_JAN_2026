@@ -16,11 +16,12 @@ execute:
 ---
 
 ## Objective:
+
 The objective of this project is to understand the behaviors behind customer transactions and how socio-demographic factors—such as age, income, and occupation—affect customer transactions. By applying statistical correlation techniques, we aim to identify which personal attributes are the true drivers of financial activity within the Colombian fintech ecosystem.
 
 This analysis extends the exploratory study by developing predictive models to estimate customer financial activity within the Colombian fintech ecosystem. Instead of focusing on customer satisfaction, this stage models transaction behaviour, which more directly reflects financial engagement on the platform. Specifically, the study aims to predict the number of average transactions per day performed by each customer using demographic attributes, digital engagement indicators, and behavioural transaction features. By applying machine learning models such as Linear Regression, Decision Tree, and Random Forest, the analysis seeks to identify the key drivers of financial activity and evaluate the predictive capability of customer attributes in explaining transaction behaviour.
 
-## Load Packages 
+## Load Packages
 
 Several R packages are used in this analysis to support data manipulation, visualization, and predictive modelling. The tidyverse package is used for data cleaning and transformation, while lubridate assists with handling date and time variables in the transaction dataset. The tidymodels framework provides a unified environment for building and evaluating predictive models. Visualization packages such as corrplot, vip, and rpart.plot are used to produce visual analytics outputs, including correlation matrices, feature importance plots, and decision tree diagrams. These packages collectively support the implementation of the modelling workflow and the generation of interpretable visual insights.
 
@@ -35,7 +36,10 @@ pacman::p_load(
   patchwork,
   scales,
   caret,
-  doParallel
+  doParallel,
+  partykit,
+  treeheatr,
+  vtree
 )
 
 tidymodels_prefer()
@@ -43,6 +47,7 @@ theme_set(theme_minimal())
 set.seed(1234)
 
 ```
+
 ## Loading Dataset
 
 The **COFINFAD (Colombian Fintech Financial Analytics Dataset)** consists of two relational datasets provided in CSV format.
@@ -53,13 +58,15 @@ The second dataset, `transactions_data.csv`, contains 3,159,157 transaction reco
 
 Both datasets are linked through a common identifier, `customer_id`, which serves as the primary key in the customer dataset and as a foreign key in the transaction dataset.
 
-In this analysis, the datasets are loaded into the  environment using the `readr` package, after which transaction-level data can be aggregated and merged with the customer-level dataset for further modelling and analysis.
+In this analysis, the datasets are loaded into the environment using the `readr` package, after which transaction-level data can be aggregated and merged with the customer-level dataset for further modelling and analysis.
 
 ```{r}
 customer_data <- read_csv("data/customer_data.csv")
 
 ```
+
 ## Data Preparation
+
 The first step is to remove observations with missing target values and ensure the transaction date field is in a proper date format.
 
 ```{r}
@@ -67,13 +74,16 @@ customer_data_clean <- customer_data %>%
   filter(!is.na(avg_daily_transactions))
 ```
 
+### Inspect Dataset Structure
 
-### Inspect Dataset Structure 
 ```{r}
 glimpse(customer_data_clean)
 ```
+
 ### Target Variable Distribution
+
 Before building predictive models, it is important to examine the distribution of the target variable.
+
 ```{r}
 customer_data_clean %>%
   summarise(
@@ -84,7 +94,6 @@ customer_data_clean %>%
     sd = sd(avg_daily_transactions)
   )
 ```
-
 
 ```{r}
 # Create modelling dataset with log-transformed target
@@ -109,6 +118,7 @@ customer_model_data %>%
     sd_target     = sd(avg_daily_transactions, na.rm = TRUE)
   )
 ```
+
 ```{r}
 # Summary statistics for log-transformed target
 customer_model_data %>%
@@ -120,6 +130,7 @@ customer_model_data %>%
     sd_log     = sd(log_avg_daily_transactions, na.rm = TRUE)
   )
 ```
+
 ```{r}
 # Histogram: original target
 p1 <- ggplot(customer_model_data, aes(x = avg_daily_transactions)) +
@@ -145,16 +156,11 @@ p2 <- ggplot(customer_model_data, aes(x = log_avg_daily_transactions)) +
 p1 + p2
 ```
 
-
 The target variable avg_daily_transactions exhibited strong right skewness, with the majority of customers performing very few daily transactions while a small number of users generated extremely high values. Such skewness can negatively affect predictive modelling by allowing extreme observations to dominate model estimation. To mitigate this issue, a logarithmic transformation was applied using log1p(avg_daily_transactions), which compresses large values while preserving zero observations. The resulting distribution shows a substantially reduced skewness and a more stable range suitable for regression-based modelling.
-
 
 ## Feature Selection
 
-
-Before building predictive models, it is necessary to select appropriate predictor variables. 
-Certain variables in the dataset directly summarize transaction activity (such as transaction counts or transaction volumes). 
-Including such variables would introduce **data leakage**, because they are mathematically related to the target variable `avg_daily_transactions`.
+Before building predictive models, it is necessary to select appropriate predictor variables. Certain variables in the dataset directly summarize transaction activity (such as transaction counts or transaction volumes). Including such variables would introduce **data leakage**, because they are mathematically related to the target variable `avg_daily_transactions`.
 
 To avoid this issue, only demographic attributes, product ownership indicators, digital engagement metrics, and customer experience variables are retained as predictors.
 
@@ -198,13 +204,13 @@ model_data <- customer_model_data %>%
   select(all_of(selected_vars), log_avg_daily_transactions)
 ```
 
-## Data Splitting 
+## Data Splitting
 
 To ensure reliable evaluation, the dataset is divided into three subsets:
 
-- **Training set (70%)** – used to train the models  
-- **Validation set (15%)** – used for hyperparameter tuning  
-- **Test set (15%)** – used for final model evaluation
+-   **Training set (70%)** – used to train the models\
+-   **Validation set (15%)** – used for hyperparameter tuning\
+-   **Test set (15%)** – used for final model evaluation
 
 ```{r}
 set.seed(1234)
@@ -233,11 +239,9 @@ get_or_save_rds <- function(path, expr) {
 }
 ```
 
-
 ## Preprocessing Recipe
 
-A preprocessing recipe is created using the **tidymodels recipe framework**. 
-This step prepares the dataset for modelling by encoding categorical variables and removing predictors with near-zero variance.
+A preprocessing recipe is created using the **tidymodels recipe framework**. This step prepares the dataset for modelling by encoding categorical variables and removing predictors with near-zero variance.
 
 ```{r}
 rec <- recipe(log_avg_daily_transactions ~ ., data = train_data) %>%
@@ -248,7 +252,7 @@ rec <- recipe(log_avg_daily_transactions ~ ., data = train_data) %>%
 
 ```
 
-## Linear Regression Model 
+## Linear Regression Model
 
 Linear regression is used as a baseline model to estimate the relationship between customer attributes and transaction activity.
 
@@ -266,10 +270,10 @@ lm_fit <- get_or_save_rds(
 )
 
 ```
+
 ## Decision Tree Model
 
 Decision trees are able to capture non-linear relationships between predictors and transaction behaviour.
-
 
 ```{r}
 tree_model <- decision_tree(
@@ -301,6 +305,7 @@ cv_folds <- vfold_cv(train_data, v = 5)
 ```
 
 ### Tune Decision Tree on Validation Set
+
 ```{r}
 tree_model_path <- "models/tree_tuned.rds"
 
@@ -325,22 +330,51 @@ if (file.exists(tree_model_path)) {
 
 ```
 
-### Best Tree 
+### Best Tree
+
 ```{r}
 best_tree <- select_best(tree_tuned, metric = "rmse")
 
 best_tree
 ```
-### Final Tree Model 
+
+### Final Tree Model
 
 ```{r}
 tree_final <- finalize_workflow(tree_workflow, best_tree) %>%
   fit(train_data)
 ```
 
-### Plot Tree 
+### Plot Tree
+
 ```{r}
 rpart.plot(extract_fit_engine(tree_final))
+```
+
+using partykit:
+
+```{r}
+rec_prep_vis <- prep(rec)
+train_baked_vis <- bake(rec_prep_vis, new_data = train_data) %>%
+  as.data.frame()
+
+tree_vis_model <- rpart::rpart(
+  log_avg_daily_transactions ~ .,
+  data = train_baked_vis,
+  method = "anova",
+  control = rpart.control(
+    maxdepth = best_tree$tree_depth,
+    cp = best_tree$cost_complexity,
+    minsplit = best_tree$min_n
+  )
+)
+
+tree_party <- partykit::as.party(tree_vis_model)
+
+plot(
+  tree_party,
+  main = "Decision Tree using partykit"
+)
 ```
 
 ## Random Forest
@@ -357,6 +391,7 @@ registerDoParallel(cl)
 
 n_cores
 ```
+
 ### Prepare Predictor Count for mtry
 
 Because dummy variables expand the number of predictors, the recipe is preprocessed once to estimate the usable predictor count.
@@ -368,6 +403,7 @@ train_processed <- bake(rec_prep, new_data = train_data)
 num_predictors <- ncol(train_processed) - 1
 num_predictors
 ```
+
 ### Random Forest Specification
 
 Use fewer trees during tuning for speed, then a larger number for the final fitted model.
@@ -390,9 +426,7 @@ rf_workflow <- workflow() %>%
   add_model(rf_model)
 ```
 
-
 ### Random Forest Grid
-
 
 ```{r}
 rf_grid <- crossing(
@@ -406,6 +440,7 @@ rf_grid <- crossing(
 
 rf_grid
 ```
+
 ### Tune Random Forest
 
 ```{r}
@@ -441,6 +476,7 @@ best_rf <- select_best(rf_tuned, metric = "rmse")
 
 best_rf
 ```
+
 ### Final Random Forest Model
 
 Use more trees for the final model.
@@ -492,7 +528,8 @@ rf_val_preds <- predict(rf_final, new_data = validation_data) %>%
   bind_cols(validation_data %>% select(log_avg_daily_transactions)) %>%
   mutate(model = "Random Forest")
 ```
-### Combine Predictions 
+
+### Combine Predictions
 
 ```{r}
 all_val_preds <- bind_rows(
@@ -502,8 +539,7 @@ all_val_preds <- bind_rows(
 )
 ```
 
-
-### Compute Metrics 
+### Compute Metrics
 
 ```{r}
 model_metrics <- all_val_preds %>%
@@ -516,7 +552,8 @@ model_metrics <- all_val_preds %>%
 
 model_metrics
 ```
-### Comparsion Chat 
+
+### Comparsion Chat
 
 ```{r}
 model_metrics_long <- model_metrics %>%
@@ -591,8 +628,6 @@ ggplot(rf_val_preds, aes(x = .pred, y = residual)) +
   )
 ```
 
-
-
 ## Final Test Set Evaluation
 
 After model comparison on the validation set, the best-performing model can be assessed on the unseen test set.
@@ -605,7 +640,7 @@ rf_test_preds <- predict(rf_final, new_data = test_data) %>%
   bind_cols(test_data %>% select(log_avg_daily_transactions))
 ```
 
-### Test Metrics 
+### Test Metrics
 
 ```{r}
 rf_test_metrics <- tibble(
@@ -625,7 +660,6 @@ registerDoSEQ()
 
 ## Conclusion from Predicting Customer Transaction Behaviour
 
-
 This analysis aimed to identify the drivers of financial activity in the Colombian fintech ecosystem by predicting customer transaction behaviour, measured using average daily transactions. Three models—Linear Regression, Decision Tree, and Random Forest were developed using demographic, product usage, and digital engagement variables from the COFINFAD dataset.
 
 Among the models, Random Forest achieved the best overall predictive performance, with slightly lower RMSE and MAE and the highest R² value compared with the other models. This suggests that ensemble methods are better able to capture complex relationships between customer attributes and transaction behaviour.
@@ -633,4 +667,3 @@ Among the models, Random Forest achieved the best overall predictive performance
 However, the overall explanatory power of the models remained moderate, indicating that the available predictors explain only part of the variation in customer transaction activity. This suggests that additional behavioural or contextual factors may influence customer financial activity.
 
 Overall, the results demonstrate that machine learning models can provide useful insights into transaction behaviour, while highlighting opportunities to improve predictive performance with richer behavioural data.
-
