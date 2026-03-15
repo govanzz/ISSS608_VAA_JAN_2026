@@ -1,5 +1,5 @@
 ---
-title: "Take Home Exercsise 2"
+title: "Take Home Exercsise 2 : Predicting Satifaction Score"
 author: "Gautamgovan"
 date: "March 4, 2026"
 date-modified: "last-modified"
@@ -610,3 +610,422 @@ dir.create("models", showWarnings = FALSE)
 saveRDS(rf_tuned, "models/rf_tuned.rds")
 ```
 
+```{r}
+#| include: false
+rf_tuned <- readRDS("models/rf_tuned.rds")
+```
+
+
+### Best Validation Settings
+
+```{r}
+show_best(rf_tuned, metric = "rmse")
+
+```
+
+```{r}
+if (file.exists("models/final_rf_fit.rds")) {
+  
+  final_rf_fit <- readRDS("models/final_rf_fit.rds")
+  
+} else {
+
+  best_rf <- select_best(rf_tuned, metric = "rmse")
+
+  final_rf_workflow <- finalize_workflow(rf_workflow, best_rf)
+
+  final_rf_fit <- fit(final_rf_workflow, data = train_data)
+
+  saveRDS(final_rf_fit, "models/final_rf_fit.rds")
+}
+```
+
+### Validation Performance
+
+```{r}
+rf_valid_pred <- predict(final_rf_fit, new_data = valid_data) %>%
+  bind_cols(valid_data %>% select(satisfaction_score))
+
+rf_valid_metrics <- reg_metrics(
+  rf_valid_pred,
+  truth = satisfaction_score,
+  estimate = .pred
+)
+
+rf_valid_metrics
+
+```
+
+
+### Predicted vs Actual Plot
+
+```{r}
+ggplot(rf_valid_pred, aes(x = satisfaction_score, y = .pred)) +
+  geom_point(alpha = 0.35) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    title = "Random Forest: Predicted vs Actual",
+    x = "Actual Satisfaction Score",
+    y = "Predicted Satisfaction Score"
+  )
+```
+
+
+### Residual Plot 
+
+```{r}
+rf_valid_pred <- rf_valid_pred %>%
+  mutate(residual = satisfaction_score - .pred)
+
+ggplot(rf_valid_pred, aes(x = .pred, y = residual)) +
+  geom_point(alpha = 0.35) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    title = "Random Forest: Residual Plot",
+    x = "Predicted Satisfaction Score",
+    y = "Residual"
+  )
+
+```
+
+### Feature Importance Plot 
+
+```{r}
+rf_engine_fit <- extract_fit_parsnip(final_rf_fit)$fit
+
+vip(rf_engine_fit, num_features = 15) +
+  labs(
+    title = "Random Forest: Top 15 Important Features"
+  )
+```
+
+## Validation Performance Comparison of All 3 models 
+
+The validation results of all three models are compared below.
+
+```{r}
+validation_results <- bind_rows(
+  lm_valid_metrics %>% mutate(model = "Linear Regression"),
+  tree_valid_metrics %>% mutate(model = "Decision Tree"),
+  rf_valid_metrics %>% mutate(model = "Random Forest")
+) %>%
+  select(model, .metric, .estimate)
+
+validation_results
+```
+
+```{r}
+ggplot(validation_results, aes(x = model, y = .estimate, fill = model)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ .metric, scales = "free_y") +
+  labs(
+    title = "Validation Performance Comparison Across Models",
+    x = NULL,
+    y = "Metric Value"
+  ) +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+```
+
+## Final Model Evaluation on Test Set 
+
+To provide a fair final comparison, all three models are refit on the combined training and validation datasets, then evaluated on the holdout test set.
+
+```{r}
+train_valid_data <- bind_rows(train_data, valid_data)
+```
+
+### Refit All Models on Training + Validation Data
+
+```{r}
+#| eval: false
+final_lm_fit <- fit(lm_workflow, data = train_valid_data)
+final_tree_fit_trainvalid <- fit(final_tree_workflow, data = train_valid_data)
+final_rf_fit_trainvalid <- fit(final_rf_workflow, data = train_valid_data)
+```
+
+```{r}
+#| eval: false
+#| include: false
+ saveRDS(final_lm_fit, "models/final_lm.rds")
+ saveRDS(final_tree_fit_trainvalid, "models/final_tree.rds")
+ saveRDS(final_rf_fit_trainvalid, "models/final_rf.rds")
+```
+
+```{r}
+#| include: false
+final_lm_fit <- readRDS("models/final_lm.rds")
+final_tree_fit_trainvalid <- readRDS("models/final_tree.rds")
+final_rf_fit_trainvalid <- readRDS("models/final_rf.rds")
+```
+
+
+### Generate Test Predictions
+
+```{r}
+lm_test_pred <- predict(final_lm_fit, new_data = test_data) %>%
+  bind_cols(test_data %>% select(satisfaction_score)) %>%
+  mutate(model = "Linear Regression")
+
+tree_test_pred <- predict(final_tree_fit_trainvalid, new_data = test_data) %>%
+  bind_cols(test_data %>% select(satisfaction_score)) %>%
+  mutate(model = "Decision Tree")
+
+rf_test_pred <- predict(final_rf_fit_trainvalid, new_data = test_data) %>%
+  bind_cols(test_data %>% select(satisfaction_score)) %>%
+  mutate(model = "Random Forest")
+```
+
+### Compute Test Metrics
+
+```{r}
+lm_test_metrics <- reg_metrics(
+  lm_test_pred,
+  truth = satisfaction_score,
+  estimate = .pred
+) %>%
+  mutate(model = "Linear Regression")
+
+tree_test_metrics <- reg_metrics(
+  tree_test_pred,
+  truth = satisfaction_score,
+  estimate = .pred
+) %>%
+  mutate(model = "Decision Tree")
+
+rf_test_metrics <- reg_metrics(
+  rf_test_pred,
+  truth = satisfaction_score,
+  estimate = .pred
+) %>%
+  mutate(model = "Random Forest")
+```
+
+```{r}
+test_results <- bind_rows(
+  lm_test_metrics,
+  tree_test_metrics,
+  rf_test_metrics
+) %>%
+  select(model, .metric, .estimate)
+
+test_results
+```
+### Test Performance Comparison
+
+```{r}
+ggplot(test_results, aes(x = model, y = .estimate, fill = model)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ .metric, scales = "free_y") +
+  labs(
+    title = "Test Performance Comparison Across Models",
+    x = NULL,
+    y = "Metric Value"
+  ) +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+```
+
+
+## Ordial Regression Pipeline
+
+As an alternative to treating satisfaction_score as a continuous variable, an ordinal regression pipeline can also be used to reflect the ordered categorical nature of the Likert-scale target. In this formulation, satisfaction_score is converted into an ordered factor, and a cumulative link model is fitted using the ordinal package. This approach estimates the probability of a customer belonging to higher or lower satisfaction categories while preserving the ranking structure of the outcome variable. Model performance can then be evaluated using classification-oriented metrics such as accuracy, Cohen’s kappa, macro F1, and confusion matrices.
+
+### Load package
+```{r}
+pacman::p_load(ordinal, yardstick)
+```
+
+### Convert target to ordered factor
+
+```{r}
+model_data_ord <- model_data %>%
+  mutate(
+    satisfaction_score = factor(
+      satisfaction_score,
+      levels = sort(unique(satisfaction_score)),
+      ordered = TRUE
+    )
+  )
+```
+
+### Split the data 
+
+```{r}
+set.seed(1234)
+
+initial_split_ord <- initial_split(model_data_ord, prop = 0.70)
+
+train_data_ord <- training(initial_split_ord)
+temp_data_ord  <- testing(initial_split_ord)
+
+set.seed(1234)
+temp_split_ord <- initial_split(temp_data_ord, prop = 0.50)
+
+valid_data_ord <- training(temp_split_ord)
+test_data_ord  <- testing(temp_split_ord)
+```
+
+### Split the data
+
+Use the ordinal target dataset.
+
+```{r}
+set.seed(1234)
+
+initial_split_ord <- initial_split(model_data_ord, prop = 0.70)
+
+train_data_ord <- training(initial_split_ord)
+temp_data_ord  <- testing(initial_split_ord)
+
+set.seed(1234)
+temp_split_ord <- initial_split(temp_data_ord, prop = 0.50)
+
+valid_data_ord <- training(temp_split_ord)
+test_data_ord  <- testing(temp_split_ord)
+```
+
+
+### Preprocessing recipe
+
+```{r}
+ord_recipe <- recipe(satisfaction_score ~ ., data = train_data_ord) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_zv(all_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+```
+
+### Prep and bake data
+Because clm() is not directly integrated into parsnip the same way as lm or rand_forest, the easiest way is:
+```{r}
+ord_prep <- prep(ord_recipe)
+
+train_baked_ord <- bake(ord_prep, new_data = train_data_ord)
+valid_baked_ord <- bake(ord_prep, new_data = valid_data_ord)
+test_baked_ord  <- bake(ord_prep, new_data = test_data_ord)
+```
+
+### Fit ordinal regression model
+
+```{r}
+ord_model <- ordinal::clm(
+  satisfaction_score ~ .,
+  data = train_baked_ord
+)
+```
+
+### Summary of the model
+
+```{r}
+summary(ord_model)
+```
+
+### Generate predictions on validation set
+For classification output:
+```{r}
+ord_valid_class <- predict(ord_model, newdata = valid_baked_ord, type = "class")$fit
+```
+
+Attach predictions:
+
+```{r}
+ord_valid_pred <- valid_baked_ord %>%
+  select(satisfaction_score) %>%
+  mutate(.pred_class = ord_valid_class)
+```
+
+### Evaluate ordinal model
+
+```{r}
+accuracy(ord_valid_pred, truth = satisfaction_score, estimate = .pred_class)
+```
+```{r}
+kap(ord_valid_pred, truth = satisfaction_score, estimate = .pred_class)
+```
+Confusion matrix:
+
+```{r}
+conf_mat(ord_valid_pred, truth = satisfaction_score, estimate = .pred_class)
+```
+### Test evaluation pipeline
+#### Refit using training + validation data
+
+```{r}
+train_valid_data_ord <- bind_rows(train_data_ord, valid_data_ord)
+```
+
+Prep again:
+
+```{r}
+ord_recipe_final <- recipe(satisfaction_score ~ ., data = train_valid_data_ord) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_zv(all_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+
+ord_prep_final <- prep(ord_recipe_final)
+
+train_valid_baked_ord <- bake(ord_prep_final, new_data = train_valid_data_ord)
+test_baked_ord_final  <- bake(ord_prep_final, new_data = test_data_ord)
+```
+
+```{r}
+final_ord_model <- ordinal::clm(
+  satisfaction_score ~ .,
+  data = train_valid_baked_ord
+)
+```
+
+#### Predict on test set:
+
+```{r}
+ord_test_class <- predict(final_ord_model, newdata = test_baked_ord_final, type = "class")$fit
+
+ord_test_pred <- test_baked_ord_final %>%
+  select(satisfaction_score) %>%
+  mutate(.pred_class = ord_test_class)
+```
+
+
+### Visual outputs for Ordinal Regression
+
+Confusion heat map 
+```{r}
+ord_cm <- conf_mat(ord_test_pred, truth = satisfaction_score, estimate = .pred_class)
+
+autoplot(ord_cm, type = "heatmap")
+```
+
+### Class distribution of predictions
+
+```{r}
+ggplot(ord_test_pred, aes(x = .pred_class)) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Predicted Satisfaction Score Distribution (Ordinal Regression)",
+    x = "Predicted Class",
+    y = "Count"
+  )
+```
+### Actual vs predicted category comparison
+```{r}
+ggplot(ord_test_pred, aes(x = satisfaction_score, fill = .pred_class)) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Actual vs Predicted Satisfaction Categories",
+    x = "Actual Satisfaction Score",
+    y = "Count",
+    fill = "Predicted Score"
+  )
+```
+
+## Conclusion from predicting  Satisfaction Score 
+
+The predictive modelling analysis aimed to estimate customer satisfaction using demographic, behavioural, and digital engagement variables from the COFINFAD dataset. Linear Regression, Decision Tree, and Random Forest models were implemented, with an additional ordinal regression formulation to reflect the ordered nature of the satisfaction score.
+
+Across all models, predictive performance remained modest. The regression models produced similar MAE and RMSE values, while the R² values were low, indicating that the available predictors explain only a small portion of the variation in customer satisfaction. The ordinal regression model produced comparable results, with predictions concentrated around the most common satisfaction category.
+
+These findings suggest that demographic attributes and financial behaviour alone are insufficient to fully explain variations in customer satisfaction. Satisfaction is likely influenced by additional factors such as service quality perception, user experience, and individual expectations that are not captured in the dataset.
+
+Given that the project objective focuses on understanding the drivers of financial activity within the Colombian fintech ecosystem, the subsequent analysis shifts toward modelling transaction behaviour, which more directly reflects customer financial activity.
