@@ -16,13 +16,12 @@ execute:
 ---
 
 ## Objective:
+
 The objective of this project is to understand the behaviors behind customer transactions and how socio-demographic factors—such as age, income, and occupation—affect customer transactions. By applying statistical correlation techniques, we aim to identify which personal attributes are the true drivers of financial activity within the Colombian fintech ecosystem.
 
 Building upon this exploratory analysis, this individual component extends the investigation through predictive modelling. Specifically, the study develops models to estimate customer satisfaction levels using demographic, behavioral, and digital engagement variables from the COFINFAD dataset. Linear Regression, Decision Tree, and Random Forest models are applied to analyze how different factors influence customer satisfaction, while visual analytics techniques are used to interpret model performance and identify the most important drivers of customer experience within the fintech platform.
 
-
-
-## Load Packages 
+## Load Packages
 
 Several R packages are used in this analysis to support data manipulation, visualization, and predictive modelling. The tidyverse package is used for data cleaning and transformation, while lubridate assists with handling date and time variables in the transaction dataset. The tidymodels framework provides a unified environment for building and evaluating predictive models. Visualization packages such as corrplot, vip, and rpart.plot are used to produce visual analytics outputs, including correlation matrices, feature importance plots, and decision tree diagrams. These packages collectively support the implementation of the modelling workflow and the generation of interpretable visual insights.
 
@@ -44,6 +43,7 @@ theme_set(theme_minimal())
 set.seed(1234)
 
 ```
+
 ## Loading Dataset
 
 The **COFINFAD (Colombian Fintech Financial Analytics Dataset)** consists of two relational datasets provided in CSV format.
@@ -54,14 +54,16 @@ The second dataset, `transactions_data.csv`, contains 3,159,157 transaction reco
 
 Both datasets are linked through a common identifier, `customer_id`, which serves as the primary key in the customer dataset and as a foreign key in the transaction dataset.
 
-In this analysis, the datasets are loaded into the  environment using the `readr` package, after which transaction-level data can be aggregated and merged with the customer-level dataset for further modelling and analysis.
+In this analysis, the datasets are loaded into the environment using the `readr` package, after which transaction-level data can be aggregated and merged with the customer-level dataset for further modelling and analysis.
 
 ```{r}
 customer_data <- read_csv("data/customer_data.csv")
 
 transactions_data <- read_csv("data/transactions_data.csv")
 ```
+
 ## Data Preparation
+
 The first step is to remove observations with missing target values and ensure the transaction date field is in a proper date format.
 
 ```{r}
@@ -80,7 +82,8 @@ customer_data_clean %>%
   )
 ```
 
-### Transaction Feature Engineering 
+### Transaction Feature Engineering
+
 The transaction-level dataset is aggregated into customer-level behavioural indicators. These engineered variables capture transaction intensity, magnitude, variability, and recency.
 
 ```{r}
@@ -103,8 +106,7 @@ transaction_features <- transactions_data_clean %>%
   )
 ```
 
-
-They are joined to customer data based on customer id 
+They are joined to customer data based on customer id
 
 ```{r}
 customer_model_data <- customer_data_clean %>%
@@ -114,30 +116,29 @@ customer_model_data <- customer_data_clean %>%
 ```{r}
 glimpse(customer_model_data)
 ```
+
 These engineered variables complement the summary variables already present in the customer table and strengthen the behavioural representation of each customer.
 
-
-### Feature Selection 
+### Feature Selection
 
 To build a robust predictive model, irrelevant and leakage-prone variables should be removed.
 
 In particular, the following types of variables are excluded:
 
-- unique identifiers such as `customer_id`
-- raw date fields
-- variables that may directly leak survey outcomes
-- variables too closely tied to the satisfaction survey process
+-   unique identifiers such as `customer_id`
+-   raw date fields
+-   variables that may directly leak survey outcomes
+-   variables too closely tied to the satisfaction survey process
 
 **Examples of likely leakage variables include:**
 
-- `base_satisfaction`
-- `tx_satisfaction`
-- `product_satisfaction`
-- `nps_score`
-- `last_survey_date`
+-   `base_satisfaction`
+-   `tx_satisfaction`
+-   `product_satisfaction`
+-   `nps_score`
+-   `last_survey_date`
 
 These variables are either conceptually very close to the target or likely measured alongside the same survey instrument, which could introduce information leakage into the predictive model.
-
 
 ```{r}
 leakage_vars <- c(
@@ -158,6 +159,7 @@ model_data <- customer_model_data %>%
 ```
 
 After removing leakage variables, also remove duplicate transaction summary variables already present in the dataset.
+
 ```{r}
 redundant_vars <- c(
   "tx_count",
@@ -178,7 +180,8 @@ Check current features:
 ```{r}
 glimpse(model_data)
 ```
-#### Remove Unnecessary features 
+
+#### Remove Unnecessary features
 
 ```{r}
 remove_vars <- c(
@@ -214,6 +217,7 @@ model_data <- model_data %>%
 ```{r}
 names(model_data)
 ```
+
 #### Correlation Analysis of Numeric Predictors
 
 This step helps identify strong relationships between predictors, which may indicate redundancy or multicollinearity. Understanding these relationships supports more stable model development and clearer interpretation.
@@ -223,13 +227,13 @@ numeric_data <- model_data %>%
   select(where(is.numeric))
 ```
 
-
 ```{r}
 cor_matrix <- numeric_data %>%
   select(-satisfaction_score) %>%
   cor(use = "pairwise.complete.obs")
 cor_matrix
 ```
+
 ```{r}
 corrplot(
   cor_matrix,
@@ -240,7 +244,8 @@ corrplot(
 )
 ```
 
-Identify Highly correlated Predictors 
+Identify Highly correlated Predictors
+
 ```{r}
 
 high_corr <- findCorrelation(cor_matrix, cutoff = 0.9)
@@ -248,6 +253,7 @@ high_corr <- findCorrelation(cor_matrix, cutoff = 0.9)
 names(numeric_data)[high_corr]
 
 ```
+
 A correlation heatmap was generated to visualize relationships among numeric predictors. The analysis identified that `sd_amount_eng` and `avg_amount_eng` are highly correlated, with a correlation coefficient greater than the threshold of 0.9.
 
 This high correlation indicates that both variables capture similar information regarding transaction magnitude. In such cases, it is advisable to remove one of the variables to reduce redundancy while preserving the essential behavioural signal.
@@ -260,23 +266,22 @@ Between the two variables:
 
 Since average transaction value is generally more interpretable and widely used in behavioural analytics, `sd_amount_eng` was removed from the feature set.
 
-
 ```{r}
 model_data <- model_data %>%
   select(-sd_amount_eng)
 ```
 
 **Final Set of Predictors**
+
 ```{r}
 names(model_data)
 ```
-
 
 ```{r}
 length(setdiff(names(model_data), "satisfaction_score"))
 ```
 
-### Data Splitting 
+### Data Splitting
 
 The dataset is split into training, validation, and test sets using a 70/15/15 structure.
 
@@ -295,22 +300,22 @@ valid_data <- training(temp_split_obj)
 test_data  <- testing(temp_split_obj)
 ```
 
-
 ### Preprocessing pipeline
 
 A preprocessing pipeline was implemented using the `recipes`package to ensure consistent data preparation across all models. The pipeline included median imputation for numeric variables, mode imputation for categorical variables, dummy encoding of nominal predictors, removal of zero-variance predictors, and normalization of numeric variables. While tree-based models are generally insensitive to scaling, normalization was included to ensure compatibility with linear regression and maintain a unified modelling workflow.
 
 This recipe includes:
 
-- dummy encoding of categorical variables,
+-   dummy encoding of categorical variables,
 
-- median imputation for numeric variables,
+-   median imputation for numeric variables,
 
-- mode imputation for nominal variables,
+-   mode imputation for nominal variables,
 
-- removal of zero variance predictors,
+-   removal of zero variance predictors,
 
-- normalization of numeric variables.
+-   normalization of numeric variables.
+
 ```{r}
 base_recipe <- recipe(satisfaction_score ~ ., data = train_data) %>%
   step_impute_median(all_numeric_predictors()) %>%
@@ -323,6 +328,7 @@ base_recipe <- recipe(satisfaction_score ~ ., data = train_data) %>%
 ```{r}
 base_recipe
 ```
+
 ## Linear Regression Model
 
 Linear regression provides a simple and interpretable benchmark.
@@ -341,7 +347,6 @@ lm_fit <- fit(lm_workflow, data = train_data)
 ```{r}
 reg_metrics <- metric_set(rmse, mae, rsq)
 ```
-
 
 ### Validation performance:
 
@@ -371,8 +376,7 @@ ggplot(lm_valid_pred, aes(x = satisfaction_score, y = .pred)) +
   )
 ```
 
-
-### Residual Plot 
+### Residual Plot
 
 ```{r}
 lm_valid_pred <- lm_valid_pred %>%
@@ -387,7 +391,6 @@ ggplot(lm_valid_pred, aes(x = .pred, y = residual)) +
     y = "Residual"
   )
 ```
-
 
 ### Coefficient Interpretation
 
@@ -432,7 +435,6 @@ To tune the tree model, 5-fold cross-validation is performed on the training set
 set.seed(1234)
 cv_folds <- vfold_cv(train_data, v = 5)
 ```
-
 
 ```{r}
 tree_grid <- grid_regular(
@@ -485,7 +487,6 @@ final_tree_workflow <- finalize_workflow(tree_workflow, best_tree)
 final_tree_fit <- fit(final_tree_workflow, data = train_data)
 ```
 
-
 ### Validation Performance
 
 ```{r}
@@ -515,7 +516,6 @@ ggplot(tree_valid_pred, aes(x = satisfaction_score, y = .pred)) +
   )
 ```
 
-
 ### Residual Plot
 
 ```{r}
@@ -532,9 +532,8 @@ ggplot(tree_valid_pred, aes(x = .pred, y = residual)) +
   )
 ```
 
-
-
 ### Decision Tree Visualization
+
 ```{r}
 tree_engine_fit <- extract_fit_engine(final_tree_fit)
 
@@ -548,6 +547,7 @@ rpart.plot(
 ```
 
 ## Random Forest Regression Model
+
 Random Forest Regression is used to improve predictive performance and provide more stable importance estimates across predictors.
 
 ```{r}
@@ -615,7 +615,6 @@ saveRDS(rf_tuned, "models/rf_tuned.rds")
 rf_tuned <- readRDS("models/rf_tuned.rds")
 ```
 
-
 ### Best Validation Settings
 
 ```{r}
@@ -656,7 +655,6 @@ rf_valid_metrics
 
 ```
 
-
 ### Predicted vs Actual Plot
 
 ```{r}
@@ -670,8 +668,7 @@ ggplot(rf_valid_pred, aes(x = satisfaction_score, y = .pred)) +
   )
 ```
 
-
-### Residual Plot 
+### Residual Plot
 
 ```{r}
 rf_valid_pred <- rf_valid_pred %>%
@@ -688,7 +685,7 @@ ggplot(rf_valid_pred, aes(x = .pred, y = residual)) +
 
 ```
 
-### Feature Importance Plot 
+### Feature Importance Plot
 
 ```{r}
 rf_engine_fit <- extract_fit_parsnip(final_rf_fit)$fit
@@ -699,7 +696,7 @@ vip(rf_engine_fit, num_features = 15) +
   )
 ```
 
-## Validation Performance Comparison of All 3 models 
+## Validation Performance Comparison of All 3 models
 
 The validation results of all three models are compared below.
 
@@ -726,7 +723,7 @@ ggplot(validation_results, aes(x = model, y = .estimate, fill = model)) +
   theme(axis.text.x = element_text(angle = 20, hjust = 1))
 ```
 
-## Final Model Evaluation on Test Set 
+## Final Model Evaluation on Test Set
 
 To provide a fair final comparison, all three models are refit on the combined training and validation datasets, then evaluated on the holdout test set.
 
@@ -757,7 +754,6 @@ final_lm_fit <- readRDS("models/final_lm.rds")
 final_tree_fit_trainvalid <- readRDS("models/final_tree.rds")
 final_rf_fit_trainvalid <- readRDS("models/final_rf.rds")
 ```
-
 
 ### Generate Test Predictions
 
@@ -810,6 +806,7 @@ test_results <- bind_rows(
 
 test_results
 ```
+
 ### Test Performance Comparison
 
 ```{r}
@@ -824,12 +821,12 @@ ggplot(test_results, aes(x = model, y = .estimate, fill = model)) +
   theme(axis.text.x = element_text(angle = 20, hjust = 1))
 ```
 
-
 ## Ordial Regression Pipeline
 
 As an alternative to treating satisfaction_score as a continuous variable, an ordinal regression pipeline can also be used to reflect the ordered categorical nature of the Likert-scale target. In this formulation, satisfaction_score is converted into an ordered factor, and a cumulative link model is fitted using the ordinal package. This approach estimates the probability of a customer belonging to higher or lower satisfaction categories while preserving the ranking structure of the outcome variable. Model performance can then be evaluated using classification-oriented metrics such as accuracy, Cohen’s kappa, macro F1, and confusion matrices.
 
 ### Load package
+
 ```{r}
 pacman::p_load(ordinal, yardstick)
 ```
@@ -847,7 +844,7 @@ model_data_ord <- model_data %>%
   )
 ```
 
-### Split the data 
+### Split the data
 
 ```{r}
 set.seed(1234)
@@ -883,7 +880,6 @@ valid_data_ord <- training(temp_split_ord)
 test_data_ord  <- testing(temp_split_ord)
 ```
 
-
 ### Preprocessing recipe
 
 ```{r}
@@ -896,7 +892,9 @@ ord_recipe <- recipe(satisfaction_score ~ ., data = train_data_ord) %>%
 ```
 
 ### Prep and bake data
+
 Because clm() is not directly integrated into parsnip the same way as lm or rand_forest, the easiest way is:
+
 ```{r}
 ord_prep <- prep(ord_recipe)
 
@@ -921,7 +919,9 @@ summary(ord_model)
 ```
 
 ### Generate predictions on validation set
+
 For classification output:
+
 ```{r}
 ord_valid_class <- predict(ord_model, newdata = valid_baked_ord, type = "class")$fit
 ```
@@ -939,15 +939,19 @@ ord_valid_pred <- valid_baked_ord %>%
 ```{r}
 accuracy(ord_valid_pred, truth = satisfaction_score, estimate = .pred_class)
 ```
+
 ```{r}
 kap(ord_valid_pred, truth = satisfaction_score, estimate = .pred_class)
 ```
+
 Confusion matrix:
 
 ```{r}
 conf_mat(ord_valid_pred, truth = satisfaction_score, estimate = .pred_class)
 ```
+
 ### Test evaluation pipeline
+
 #### Refit using training + validation data
 
 ```{r}
@@ -987,10 +991,10 @@ ord_test_pred <- test_baked_ord_final %>%
   mutate(.pred_class = ord_test_class)
 ```
 
-
 ### Visual outputs for Ordinal Regression
 
-Confusion heat map 
+Confusion heat map
+
 ```{r}
 ord_cm <- conf_mat(ord_test_pred, truth = satisfaction_score, estimate = .pred_class)
 
@@ -1008,7 +1012,9 @@ ggplot(ord_test_pred, aes(x = .pred_class)) +
     y = "Count"
   )
 ```
+
 ### Actual vs predicted category comparison
+
 ```{r}
 ggplot(ord_test_pred, aes(x = satisfaction_score, fill = .pred_class)) +
   geom_bar(position = "dodge") +
@@ -1020,7 +1026,7 @@ ggplot(ord_test_pred, aes(x = satisfaction_score, fill = .pred_class)) +
   )
 ```
 
-## Conclusion from predicting  Satisfaction Score 
+## Conclusion from predicting Satisfaction Score
 
 The predictive modelling analysis aimed to estimate customer satisfaction using demographic, behavioural, and digital engagement variables from the COFINFAD dataset. Linear Regression, Decision Tree, and Random Forest models were implemented, with an additional ordinal regression formulation to reflect the ordered nature of the satisfaction score.
 
