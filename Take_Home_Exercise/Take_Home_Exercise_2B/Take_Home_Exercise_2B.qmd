@@ -1,5 +1,5 @@
 ---
-title: "Take Home Exercise 2B"
+title: "Take Home Exercise 2B Prdeicting Customer Transaction Behaviour"
 author: "Gautamgovan"
 date: "March 4, 2026"
 date-modified: "last-modified"
