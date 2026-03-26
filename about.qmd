@@ -6,61 +6,59 @@ title: "About"
 
 The objectives of this website are to:
 
-- Document hands-on learning in visual analytics  
-- Apply data visualization principles using real datasets  
-- Demonstrate the use of R and visualization libraries  
-- Present analytical results in a clear and structured format  
-- Serve as a reference for coursework and future learning  
+-   Document hands-on learning in visual analytics\
+-   Apply data visualization principles using real datasets\
+-   Demonstrate the use of R and visualization libraries\
+-   Present analytical results in a clear and structured format\
+-   Serve as a reference for coursework and future learning
 
----
+------------------------------------------------------------------------
 
 ## Contents of the Website
 
 This website contains the following sections:
 
-### 📘 Hands-on Exercises
-Practical exercises focusing on:
-- Data exploration
-- Visual encoding techniques
-- Statistical graphics using `ggplot2`
+### Hands-on Exercises
 
-### 🧪 In-Class Exercises
-Guided exercises conducted during lessons to reinforce:
-- Visual perception principles  
-- Effective chart design  
-- Analytical storytelling  
+Practical exercises focusing on: - Data exploration - Visual encoding techniques - Statistical graphics using `ggplot2`
 
-### 🏠 Take-Home Exercises
-Independent assignments that apply visual analytics concepts to:
-- Real-world datasets  
-- Exploratory and explanatory analysis  
-- Visual interpretation and reporting  
+### In-Class Exercises
 
----
+Guided exercises conducted during lessons to reinforce: - Visual perception principles\
+- Effective chart design\
+- Analytical storytelling
+
+### Take-Home Exercises
+
+Independent assignments that apply visual analytics concepts to: - Real-world datasets\
+- Exploratory and explanatory analysis\
+- Visual interpretation and reporting
+
+------------------------------------------------------------------------
 
 ## Tools & Technologies Used
 
-- **R / RStudio**
-- **Quarto**
-- **ggplot2**
-- **tidyverse**
-- **Plotly**
-- **GitHub & Netlify** (for version control and deployment)
+-   **R / RStudio**
+-   **Quarto**
+-   **ggplot2**
+-   **tidyverse**
+-   **Plotly**
+-   **GitHub & Netlify** (for version control and deployment)
 
----
+------------------------------------------------------------------------
 
 ## About the Author
 
-**Name:** Gautamgovan  
-**Programme:** Master of IT in Business (MITB)  
-**Course:** ISSS608 – Visual Analytics  
-**Institution:** Singapore Management University  
+**Name:** Gautamgovan\
+**Programme:** Master of IT in Business (MITB)\
+**Course:** ISSS608 – Visual Analytics\
+**Institution:** Singapore Management University
 
 This website is part of my academic coursework and is intended for educational purposes.
 
----
+------------------------------------------------------------------------
 
 ## Disclaimer
 
-All content in this website is created for learning and academic use only.  
+All content in this website is created for learning and academic use only.\
 Datasets and visualisations are used strictly for educational purposes.
